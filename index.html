@@ -26,29 +26,29 @@
     input:focus, textarea:focus{ border-color:var(--primary); box-shadow:0 0 0 4px rgba(79, 70, 229, 0.1); }
     button{ border:none; padding:14px 20px; border-radius:var(--radius-sm); font-size:15px; font-weight:700; cursor:pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
     button:active{ transform: scale(0.97); }
-    .btn-primary{ background:var(--primary); color:#fff; } .btn-light{ background:#f1f5f9; color:var(--text); }
+    .btn-primary{ background:var(--primary); color:#fff; } .btn-light{ background:#f1f5f9; color:var(--text); border:1px solid var(--line); }
     .status{ padding:14px; border-radius:var(--radius-sm); font-size:14px; font-weight: 600; display:none; margin-bottom:16px; border:1px solid transparent; }
     .status.ok{ display:flex; background:#dcfce7; color:#16a34a; border-color:#bbf7d0; }
     .status.warn{ display:flex; background:#ffedd5; color:#ea580c; border-color:#fed7aa; }
     .status.err{ display:flex; background:#fee2e2; color:#dc2626; border-color:#fecaca; }
-
+    
     .big-stat-box { background: var(--primary); color: #fff; padding: 25px; border-radius: 20px; margin-bottom: 20px; text-align: center; box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25); }
     .big-stat-label { font-size: 14px; opacity: 0.9; margin-bottom: 8px; display: block; }
     .big-stat-value { font-size: 56px; font-weight: 800; line-height: 1; }
     .big-stat-unit { font-size: 20px; margin-left: 10px; opacity: 0.8; }
     .lot-breakdown-box { background: rgba(0,0,0,0.15); border-radius: 12px; padding: 12px; margin-top: 15px; text-align: left; font-size: 14px; line-height: 1.6; display: none; }
-
+    
     .scanner-box{ border-radius:16px; overflow:hidden; background:#000; position:relative; min-height:240px; margin: 10px 0; }
     .scanner-video{ width:100%; height:240px; object-fit:cover; }
     .scanner-frame{ position:absolute; inset:0; border:2px solid #fff; width:70%; height:50%; margin:auto; border-radius:12px; box-shadow:0 0 0 1000px rgba(0,0,0,0.5); }
-
+    
     .table-wrap{ overflow-x:auto; border:1px solid var(--line); border-radius:16px; }
     table{ width:100%; border-collapse:collapse; font-size:14px; min-width:800px; }
     th, td{ padding:14px; text-align:left; border-bottom:1px solid #f1f5f9; }
     th{ background:#f8fafc; font-weight:700; color:var(--muted); font-size:12px; }
     .pill{ padding:4px 10px; border-radius:99px; font-size:12px; font-weight:700; }
     .pill-danger{ background:#fee2e2; color:#dc2626; } .pill-ok{ background:#dcfce7; color:#16a34a; }
-
+    
     #loader { position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; }
     #loader.active { display: flex; }
     .spinner { width: 40px; height: 40px; border: 4px solid var(--line); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
@@ -69,11 +69,11 @@
     .modal-box p { margin: 0 0 20px 0; color: var(--muted); font-size: 15px; line-height: 1.5; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 
-    @media (max-width: 600px) {
-      .row { grid-template-columns: 1fr; }
-      .mini-stats { grid-template-columns: repeat(2, 1fr); }
-      .sticky-actions { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 16px; display: flex; gap: 10px; border-top: 1px solid var(--line); z-index: 100; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); }
-      .wrap { padding-bottom: 100px; }
+    @media (max-width: 600px) { 
+      .row { grid-template-columns: 1fr; } 
+      .mini-stats { grid-template-columns: repeat(2, 1fr); } 
+      .sticky-actions { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 16px; display: flex; gap: 10px; border-top: 1px solid var(--line); z-index: 100; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); } 
+      .wrap { padding-bottom: 100px; } 
       .table-wrap { border: none; overflow: visible; background: transparent; }
       table { min-width: 100%; display: block; }
       thead { display: none; }
@@ -104,7 +104,7 @@
   <div class="wrap">
     <div class="topbar">
       <div><h1 style="margin:0; font-size:24px;">❄️ จัดการคลังสินค้า</h1></div>
-      <div class="badge" id="versionBadge">V 3.3.0</div>
+      <div class="badge" id="versionBadge">V 3.4.1 Smart Calc</div>
     </div>
     <div class="tabbar">
       <button class="tab-btn active" id="tabBtn-stock" onclick="switchTab('stock')">📦 จัดการ</button>
@@ -120,22 +120,22 @@
         <div style="display:flex; gap:10px;"><button class="btn-primary" onclick="startCameraScanner('stock')">📷 เปิดกล้องสแกน</button><button class="btn-light" onclick="stopCameraScanner()">❌ ปิด</button></div>
         <div class="scanner-box hide" id="scannerBoxStock"><video id="videoStock" class="scanner-video" playsinline muted></video><div class="scanner-frame"></div></div>
         <div class="status" id="scannerStatusStock"></div>
-
+        
         <div class="inline" style="margin-top:15px;">
           <input type="text" id="barcode" placeholder="🏷️ สแกนบาร์โค้ด หรือ พิมพ์ชื่อสินค้า..." style="flex:1;" autocomplete="off">
           <button class="btn-primary" onclick="lookupBarcode()">🔍 ค้นหา</button>
         </div>
       </div>
-
+      
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center;"><h2>💾 รับเข้า / ตรวจนับสต๊อก</h2><button class="btn-light" onclick="clearLotFieldsOnly()" style="padding:8px 12px; font-size:12px;">🧹 ล้างข้อมูลอัปเดต</button></div>
-
+        
         <div class="big-stat-box">
           <span class="big-stat-label">📉 ยอดคงเหลือในระบบ (ทุกรอบการผลิต)</span>
           <div><span class="big-stat-value" id="totalQtyDisplay">0</span><span class="big-stat-unit" id="masterUnitDisplay">-</span></div>
           <div class="lot-breakdown-box" id="lotBreakdownDisplay"></div>
         </div>
-
+        
         <div class="status" id="mainStatus"></div>
         <div class="row"><div class="field full"><label>👤 ผู้บันทึก (ชื่อพนักงาน) *</label><input type="text" id="employeeName" placeholder="ระบุชื่อผู้ทำรายการ" autocomplete="off"></div></div>
         <div class="section">
@@ -146,7 +146,7 @@
           </div>
         </div>
         <div class="section" style="background:#f1f5f9; padding:15px; border-radius:15px;">
-          <div class="field full"><label>📦 จำนวน (รับเข้า / นับได้) *</label><input type="number" id="newQty" step="0.01" style="font-size:24px; height:60px; border:2px solid var(--primary);" autocomplete="off"></div>
+          <div class="field full"><label>📦 จำนวน (รับเข้า / นับได้) *</label><input type="text" id="newQty" placeholder="เช่น 16*48+5" style="font-size:24px; height:60px; border:2px solid var(--primary);" autocomplete="off"></div>
           <div class="field full" style="margin-top:10px;"><label>💬 หมายเหตุ (ถ้ามี)</label><textarea id="note" placeholder="เช่น รับสินค้าใหม่, ส่งขายหมดแล้ว" autocomplete="off"></textarea></div>
         </div>
         <div class="actions sticky-actions"><button class="btn-primary" onclick="saveCount()" style="flex:2;">✅ บันทึกข้อมูล</button><button class="btn-light" onclick="clearEntryOnly()" style="flex:1;">🧹 เริ่มใหม่</button></div>
@@ -155,7 +155,13 @@
 
     <div class="tab-panel" id="tab-balance">
       <div class="card">
-        <h2>📊 สต๊อกคงเหลือรายสินค้า (แยกตามรอบผลิต)</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
+          <h2 style="margin:0;">📊 สต๊อกคงเหลือรายสินค้า</h2>
+          <div style="display:flex; gap:10px;">
+            <button class="btn-light" style="padding:8px 12px; font-size:12px; font-weight:600;" onclick="exportData('csv')">📄 โหลด CSV</button>
+            <button class="btn-primary" style="padding:8px 12px; font-size:12px; font-weight:600; background:#dc2626;" onclick="exportData('pdf')">🖨️ ออก PDF (Print)</button>
+          </div>
+        </div>
         <div class="table-wrap">
           <table><thead><tr><th>จัดการ</th><th>บาร์โค้ด</th><th>ชื่อสินค้า</th><th>MFG</th><th>EXP</th><th>จำนวน</th><th>เหลือ(วัน)</th><th>สถานะ</th><th>QC</th></tr></thead><tbody id="balanceBody"></tbody></table>
         </div>
@@ -210,9 +216,9 @@
   </div>
 
   <script>
-    const APP_VERSION = "3.3.0 Smart Zero Tracking";
+    const APP_VERSION = "3.4.1 Smart Calc";
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz2AONFYOHEl9lckjwHcwp8DeW8gboWDDBHcptGd82lT6iJeA7SjO63LC_TJaNILAw/exec";
-
+    
     let currentProduct = null, scannerStream = null, scannerRunning = false, scannerLoopHandle = null, barcodeDetector = null, currentScannerMode = 'stock';
     window.allLotsData = [];
 
@@ -225,35 +231,53 @@
     }
     function escapeHtml(t) { return String(t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;"); }
 
+    // 🟢 ระบบส่งออกข้อมูล (Export CSV / PDF)
+    function exportData(format) {
+      if (!window.allLotsData || window.allLotsData.length === 0) { showToast("ไม่พบข้อมูลสต๊อกสำหรับส่งออก", "warn"); return; }
+      const sortedData = [...window.allLotsData].sort((a, b) => new Date(b.MFG) - new Date(a.MFG));
+
+      if (format === 'csv') {
+        let csvContent = "\uFEFF"; 
+        csvContent += "บาร์โค้ด,ชื่อสินค้า,วันที่ผลิต(MFG),วันหมดอายุ(EXP),จำนวนคงเหลือ,หน่วยนับ,เวลาที่เหลือ(วัน),สถานะ\n";
+        sortedData.forEach(r => {
+          const bc = `="${r.Barcode}"`, name = `"${r.ProductName}"`, mfg = isoToDdmmyy(r.MFG), exp = isoToDdmmyy(r.EXP);
+          csvContent += `${bc},${name},${mfg},${exp},${r.Qty},${r.Unit},${r.ExpireDays},${r.ExpireStatus}\n`;
+        });
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url); link.setAttribute("download", `Stock_Report_${new Date().toISOString().slice(0,10)}.csv`);
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        showToast("ดาวน์โหลดไฟล์ CSV เรียบร้อยแล้ว");
+
+      } else if (format === 'pdf') {
+        const dateStr = new Date().toLocaleString('th-TH');
+        let html = `<!DOCTYPE html><html><head><title>รายงานสต๊อกคงเหลือ</title><style>@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');body { font-family: 'Sarabun', sans-serif; padding: 20px; color: #0f172a; }h2 { text-align: center; margin-bottom: 5px; }p { text-align: center; color: #64748b; font-size: 14px; margin-bottom: 20px; }table { width: 100%; border-collapse: collapse; font-size: 14px; }th, td { border: 1px solid #cbd5e1; padding: 8px 12px; text-align: left; }th { background-color: #f1f5f9; font-weight: 700; text-align: center; }.num { text-align: right; font-weight: 700; color: #4f46e5; }.center { text-align: center; }@media print { @page { size: A4 portrait; margin: 1cm; } }</style></head><body><h2>รายงานสต๊อกคงเหลือ (เรียงตามรอบการผลิตล่าสุด)</h2><p>ข้อมูลอัปเดต ณ วันที่: ${dateStr}</p><table><thead><tr><th>บาร์โค้ด</th><th>ชื่อสินค้า</th><th>ผลิต(MFG)</th><th>หมดอายุ(EXP)</th><th>จำนวน</th><th>หน่วย</th><th>สถานะ</th></tr></thead><tbody>`;
+        sortedData.forEach(r => { html += `<tr><td class="center">${escapeHtml(r.Barcode)}</td><td>${escapeHtml(r.ProductName)}</td><td class="center">${isoToDdmmyy(r.MFG)}</td><td class="center">${isoToDdmmyy(r.EXP)}</td><td class="num">${r.Qty}</td><td class="center">${escapeHtml(r.Unit)}</td><td class="center">${r.ExpireStatus}</td></tr>`; });
+        html += `</tbody></table></body></html>`;
+
+        const printWin = window.open('', '', 'width=900,height=600');
+        printWin.document.open(); printWin.document.write(html); printWin.document.close(); printWin.focus();
+        setTimeout(() => { printWin.print(); }, 500);
+      }
+    }
+
     function showToast(msg, type="ok") {
-      const box = $("toastBox");
-      const t = document.createElement("div");
-      let icon = type==='ok'?'✅':type==='err'?'❌':'⚠️';
+      const box = $("toastBox"); const t = document.createElement("div"); let icon = type==='ok'?'✅':type==='err'?'❌':'⚠️';
       t.className = `toast ${type}`; t.innerHTML = `<span>${icon}</span> <span>${msg}</span>`;
-      box.appendChild(t);
-      setTimeout(()=>t.classList.add("show"), 10);
+      box.appendChild(t); setTimeout(()=>t.classList.add("show"), 10);
       setTimeout(() => { t.classList.remove("show"); setTimeout(()=>t.remove(), 300); }, 3000);
     }
 
     function showModal(type, title, msg) {
       return new Promise(resolve => {
-        const overlay = $("customModal");
-        $("modalTitle").innerText = title;
-        $("modalMessage").innerHTML = msg.replace(/\n/g, '<br>');
+        const overlay = $("customModal"); $("modalTitle").innerText = title; $("modalMessage").innerHTML = msg.replace(/\n/g, '<br>');
         const input = $("modalInput");
-
-        if(type === 'prompt') { input.style.display = 'block'; input.value = ''; setTimeout(()=>input.focus(), 100); }
-        else { input.style.display = 'none'; }
-
+        if(type === 'prompt') { input.style.display = 'block'; input.value = ''; setTimeout(()=>input.focus(), 100); } else { input.style.display = 'none'; }
         $("modalCancelBtn").style.display = type === 'alert' ? 'none' : 'block';
         overlay.classList.add("show");
-
         $("modalCancelBtn").onclick = () => { overlay.classList.remove("show"); resolve(null); };
-        $("modalConfirmBtn").onclick = () => {
-           overlay.classList.remove("show");
-           if(type === 'prompt') resolve(input.value);
-           else resolve(true);
-        };
+        $("modalConfirmBtn").onclick = () => { overlay.classList.remove("show"); if(type === 'prompt') resolve(input.value); else resolve(true); };
       });
     }
 
@@ -275,10 +299,9 @@
       showToast("ล้างฟอร์มอัปเดตยอดเรียบร้อยแล้ว", "ok");
     }
 
-    // 🟢 ล้างทุกอย่างในหน้าจอ
     function clearEntryOnly() {
       ["barcode","mfg","exp","newQty","note","productName","newBarcodeView","newProductName","newSku","newUnit"].forEach(id => { if($(id)) $(id).value = ""; });
-      $("totalQtyDisplay").textContent = "0"; $("masterUnitDisplay").textContent = "-";
+      $("totalQtyDisplay").textContent = "0"; $("masterUnitDisplay").textContent = "-"; 
       $("lotBreakdownDisplay").style.display = "none"; $("lotBreakdownDisplay").innerHTML = "";
       currentProduct=null; clearStatus("mainStatus"); $("barcode").focus();
     }
@@ -292,10 +315,10 @@
     function renderLotBreakdown(rows) {
       const unit = $("masterUnitDisplay").textContent;
       if(!rows || !rows.length) { $("totalQtyDisplay").textContent = "0"; $("lotBreakdownDisplay").style.display = "none"; return; }
-
+      
       const total = rows.reduce((sum, r) => sum + r.Qty, 0);
       $("totalQtyDisplay").textContent = total;
-
+      
       let html = `<div style='margin-bottom:6px; font-weight:700; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 4px;'>แยกตามรอบผลิต (MFG):</div>`;
       html += rows.map((r) => {
         return `<div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
@@ -304,34 +327,26 @@
                   <button class="btn-primary" style="padding:4px 8px; font-size:10px; border-radius:4px;" onclick="selectLotFromBreakdown('${r.MFG}', '${r.EXP}', ${r.Qty})">เลือก</button></div>
                 </div>`;
       }).join("");
-
+      
       $("lotBreakdownDisplay").innerHTML = html;
       $("lotBreakdownDisplay").style.display = "block";
     }
 
     function selectLotFromBreakdown(mfgIso, expIso, qty) {
-      $("mfg").value = isoToDdmmyy(mfgIso); $("exp").value = isoToDdmmyy(expIso);
+      $("mfg").value = isoToDdmmyy(mfgIso); $("exp").value = isoToDdmmyy(expIso); 
       $("newQty").focus(); showToast(`เลือกรอบผลิต ${isoToDdmmyy(mfgIso)} แล้ว!`);
     }
 
     async function lookupBarcode() {
       const searchTerm = $("barcode").value.trim(); if(!searchTerm) return;
-
       const res = await callServer("getProductAndBalances", { barcode: searchTerm });
-      if(!res.found) {
-        if (/^\d+$/.test(searchTerm.replace(/\s+/g, ""))) { $("newBarcodeView").value = searchTerm.replace(/\s+/g, ""); }
+      if(!res.found) { 
+        if (/^\d+$/.test(searchTerm.replace(/\s+/g, ""))) { $("newBarcodeView").value = searchTerm.replace(/\s+/g, ""); } 
         else { $("newBarcodeView").value = ""; }
-
-        switchTab("newproduct");
-        setStatus("newProductStatus", "ไม่พบสินค้าในระบบ กรุณาขึ้นทะเบียนใหม่ครับ 👇", "warn");
-        return;
+        switchTab("newproduct"); setStatus("newProductStatus", "ไม่พบสินค้าในระบบ กรุณาขึ้นทะเบียนใหม่ครับ 👇", "warn"); return; 
       }
-
       currentProduct = res.product;
-      $("barcode").value = res.product.Barcode;
-      $("productName").value = res.product.ProductName;
-      $("masterUnitDisplay").textContent = res.product.DefaultUnit;
-
+      $("barcode").value = res.product.Barcode; $("productName").value = res.product.ProductName; $("masterUnitDisplay").textContent = res.product.DefaultUnit;
       renderLotBreakdown(res.balances);
       setStatus("mainStatus", res.balances.length ? `พบข้อมูลสต๊อก กรุณาเลือกรอบผลิตเพื่ออัปเดตยอด` : "ไม่มียอดคงเหลือในระบบ กรุณาระบุรายละเอียดเพื่อรับเข้า", "ok");
     }
@@ -339,16 +354,16 @@
     async function loadStartupOverview() {
       const res = await callServer("getStartupOverview");
       if(res.ok) {
-        window.allLotsData = res.allLots;
+        window.allLotsData = res.allLots; 
         $("sumProducts").textContent = res.summary.totalProducts; $("sumLots").textContent = res.summary.totalLots;
         $("sumExpiring").textContent = res.summary.expiringLots; $("sumExpired").textContent = res.summary.expiredLots;
-
+        
         $("totalBody").innerHTML = res.totalByProduct.map(x => `<tr><td data-label="ชื่อสินค้า">${x.ProductName}</td><td data-label="ยอดรวมทั้งหมด"><b>${x.TotalQty}</b></td><td data-label="หน่วยนับ">${x.Unit}</td><td data-label="จำนวนรอบผลิต">${x.LotCount}</td></tr>`).join("");
         $("expiringBody").innerHTML = res.expiringLots.map(x => `<tr><td data-label="ชื่อสินค้า">${x.ProductName}</td><td data-label="ผลิต(MFG)"><b>${isoToDdmmyy(x.MFG)}</b></td><td data-label="หมดอายุ(EXP)">${isoToDdmmyy(x.EXP)}</td><td data-label="เวลาที่เหลือ(วัน)" style="color:var(--warn)">${x.ExpireDays}</td><td data-label="จำนวนคงเหลือ"><b>${x.Qty}</b></td></tr>`).join("");
         $("expiredBody").innerHTML = res.expiredLots.map(x => `<tr><td data-label="ชื่อสินค้า">${x.ProductName}</td><td data-label="ผลิต(MFG)"><b>${isoToDdmmyy(x.MFG)}</b></td><td data-label="หมดอายุ(EXP)">${isoToDdmmyy(x.EXP)}</td><td data-label="เลยกำหนด(วัน)" style="color:var(--danger)">${Math.abs(x.ExpireDays)} วัน</td><td data-label="จำนวนคงเหลือ"><b>${x.Qty}</b></td></tr>`).join("");
-
+        
         const b = $("balanceBody");
-        if(!res.allLots || !res.allLots.length) { b.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:20px;">ไม่มีข้อมูลสต๊อกคงเหลือในระบบ</td></tr>'; }
+        if(!res.allLots || !res.allLots.length) { b.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:20px;">ไม่มีข้อมูลสต๊อกคงเหลือในระบบ</td></tr>'; } 
         else {
           b.innerHTML = res.allLots.map((r,i) => `
             <tr>
@@ -372,30 +387,26 @@
 
     async function selectLotGlobal(i) {
       const r = window.allLotsData[i]; if(!r) return;
-      switchTab('stock'); $("barcode").value = r.Barcode; await lookupBarcode();
-      $("mfg").value = isoToDdmmyy(r.MFG); $("exp").value = isoToDdmmyy(r.EXP);
+      switchTab('stock'); $("barcode").value = r.Barcode; await lookupBarcode(); 
+      $("mfg").value = isoToDdmmyy(r.MFG); $("exp").value = isoToDdmmyy(r.EXP); 
       $("newQty").focus(); showToast(`เลือกรอบผลิต ${isoToDdmmyy(r.MFG)} เรียบร้อย!`);
     }
 
-    // 🟢 ระบบกดปุ่ม เคลียร์ จากแท็บสินค้าทั้งหมด
     async function askClearLotGlobal(i) {
       const row = window.allLotsData[i], emp = $("employeeName").value.trim();
       if (!emp) { await showModal("alert", "ไม่พบข้อมูลพนักงาน", "กรุณาระบุชื่อผู้บันทึกในหน้า 'จัดการ' ก่อนดำเนินการ!"); switchTab('stock'); $("employeeName").focus(); return; }
-
+      
       const reason = await showModal("prompt", "🗑️ นำสินค้าออกจากสต๊อก", `รอบผลิต ${isoToDdmmyy(row.MFG)} ของ ${row.ProductName}\nกรุณาระบุเหตุผล (เช่น เบิกสินค้า, ตัดชำรุด):`);
       if (!reason) return;
-
+      
       const conf = await showModal("confirm", "ยืนยันการนำออก", `ยืนยันการปรับยอดเป็น 0 ใช่หรือไม่?\nระบบจะทำการส่งแจ้งเตือนทันที`);
       if (conf) {
         const res = await callServer("clearLotStock", { barcode: row.Barcode, mfg: row.MFG, reason: reason, employeeName: emp });
-        if (res.ok) {
+        if (res.ok) { 
             if(navigator.vibrate) navigator.vibrate([100,50,100]);
-            showToast("ดำเนินการเรียบร้อยแล้ว");
-            // ล้างหน้าจอทันที เพื่อไม่ให้ข้อมูลเก่าค้าง
-            clearEntryOnly();
-            // ถ้าสินค้านี้กำลังเปิดอยู่ ให้โหลดใหม่
-            if ($("barcode").value.trim() === row.Barcode) lookupBarcode();
-            loadStartupOverview();
+            showToast("ดำเนินการเรียบร้อยแล้ว"); clearEntryOnly();
+            if ($("barcode").value.trim() === row.Barcode) lookupBarcode(); 
+            loadStartupOverview(); 
         }
       }
     }
@@ -405,43 +416,55 @@
       const dd = parseInt(mfgStr.substring(0, 2), 10), mm = parseInt(mfgStr.substring(2, 4), 10), yy = parseInt(mfgStr.substring(4, 6), 10), yyyy = 2000 + yy;
       const mfgDate = new Date(yyyy, mm - 1, dd);
       if (mfgDate.getFullYear() !== yyyy || mfgDate.getMonth() !== mm - 1 || mfgDate.getDate() !== dd) { setStatus("mainStatus", "❌ รูปแบบวันที่ไม่ถูกต้องตามปฏิทิน", "err"); $("exp").value = ""; return; }
-
+      
       if (!currentProduct) return;
       const shelfLife = parseInt(currentProduct.StandardShelfLifeDays, 10);
       if (isNaN(shelfLife) || shelfLife <= 0) { setStatus("mainStatus", "⚠️ ไม่พบค่าอายุมาตรฐาน กรุณาระบุวันหมดอายุเอง", "warn"); return; }
-
+      
       mfgDate.setDate(mfgDate.getDate() + shelfLife);
       const outDd = String(mfgDate.getDate()).padStart(2, "0"), outMm = String(mfgDate.getMonth() + 1).padStart(2, "0"), outYy = String(mfgDate.getFullYear()).substring(2, 4);
-
+      
       $("exp").value = outDd + outMm + outYy;
       setStatus("mainStatus", `✅ คำนวณวันหมดอายุอัตโนมัติสำเร็จ (+${shelfLife} วัน)`, "ok");
     }
 
-    // 🟢 ระบบบันทึกสต๊อก และตรวจจับการคีย์ 0
-    async function saveCount() {
-      const pl = { barcode: $("barcode").value.trim(), employeeName: $("employeeName").value.trim(), mfg: $("mfg").value.trim(), exp: $("exp").value.trim(), newQty: $("newQty").value.trim(), note: $("note").value.trim() };
-      if (!pl.employeeName || !pl.mfg || !pl.exp || !pl.newQty) { await showModal("alert", "ข้อมูลไม่ครบถ้วน", "กรุณาระบุข้อมูลให้ครบ:\n(ชื่อพนักงาน, วันผลิต, วันหมดอายุ, จำนวน)"); return; }
+    // 🟢 ระบบคำนวณเลขสูตรคณิตศาสตร์ในช่องจำนวน (เช่น 16*48+5)
+    function evalMathExpression(el) {
+      let val = String(el.value).trim().replace(/x/gi, '*'); // เปลี่ยนตัว x เป็นเครื่องหมายคูณให้ด้วย
+      if(/^[0-9+\-*/().\s]+$/.test(val)) {
+        try { 
+          let result = new Function('return ' + val)();
+          // ปัดเศษให้สวยงามถ้ามีทศนิยม
+          el.value = Math.round(result * 100) / 100; 
+        } catch(e) {}
+      }
+    }
 
-      // ตรวจสอบกรณีลูกค้าตั้งใจปรับยอดเป็น 0
+    async function saveCount() {
+      // 🟢 แอบคำนวณตัวเลขก่อนเซฟ (เผื่อผู้ใช้พิมพ์สูตรแล้วกดเซฟเลย)
+      evalMathExpression($("newQty"));
+
+      const pl = { barcode: $("barcode").value.trim(), employeeName: $("employeeName").value.trim(), mfg: $("mfg").value.trim(), exp: $("exp").value.trim(), newQty: $("newQty").value.trim(), note: $("note").value.trim() };
+      
+      // เปลี่ยนเงื่อนไขการเช็ก pl.newQty ให้รองรับเลข 0 และกันกรณีเป็นช่องว่าง
+      if (!pl.employeeName || !pl.mfg || !pl.exp || pl.newQty === "" || isNaN(pl.newQty)) { 
+        await showModal("alert", "ข้อมูลไม่ครบถ้วน", "กรุณาระบุข้อมูลให้ครบและถูกต้อง:\n(ชื่อพนักงาน, วันผลิต, วันหมดอายุ, จำนวนต้องเป็นตัวเลข)"); 
+        return; 
+      }
+      
       const qtyVal = Number(pl.newQty);
       if (qtyVal === 0 && !pl.note) {
           const reason = await showModal("prompt", "สินค้ารายการนี้หมดแล้ว?", "คุณระบุจำนวนเป็น 0\nกรุณาให้เหตุผล (เช่น ขายหมด, เบิกของหมดแล้ว):");
-          if (!reason) return; // ถ้ากดยกเลิก ไม่ต้องทำต่อ
-          pl.note = reason;
-          $("note").value = reason;
+          if (!reason) return; 
+          pl.note = reason; $("note").value = reason;
       }
 
       const res = await callServer("saveOrUpdateCount", pl);
-      if (res.ok) {
+      if (res.ok) { 
         if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
-        showToast(qtyVal === 0 ? "ปรับยอดเป็น 0 และนำออกจากสต๊อกแล้ว" : "บันทึกข้อมูลเข้าสต๊อกเรียบร้อย!");
-
-        // 🟢 ล้างหน้าจอทันที เพื่อไม่ให้ข้อมูลเก่าค้าง
+        showToast(qtyVal === 0 ? "ปรับยอดเป็น 0 และนำออกจากสต๊อกแล้ว" : "บันทึกข้อมูลเข้าสต๊อกเรียบร้อย!"); 
         const currentBarcode = $("barcode").value.trim();
-        clearEntryOnly();
-        $("barcode").value = currentBarcode;
-        lookupBarcode(); // โหลดข้อมูลใหม่ (ตัวที่เป็น 0 จะหายไป)
-        loadStartupOverview();
+        clearEntryOnly(); $("barcode").value = currentBarcode; lookupBarcode(); loadStartupOverview(); 
       }
     }
 
@@ -481,9 +504,9 @@
       const vid = currentScannerMode==='stock'?"videoStock":"videoNew";
       try {
         const bc = await barcodeDetector.detect($(vid));
-        if(bc && bc.length) {
-          if(navigator.vibrate) navigator.vibrate([50, 50, 50]);
-          stopCameraScanner();
+        if(bc && bc.length) { 
+          if(navigator.vibrate) navigator.vibrate([50, 50, 50]); 
+          stopCameraScanner(); 
           if(currentScannerMode==='stock') { $("barcode").value=bc[0].rawValue; lookupBarcode(); }
           else { $("newBarcodeView").value=bc[0].rawValue; }
           return;
@@ -492,13 +515,19 @@
       scannerLoopHandle = setTimeout(scanLoop, 250);
     }
 
-    window.onload = () => {
+    window.onload = () => { 
       callServer("getAlertSettings").then(res => { if(res.ok) { const s = res.settings; $("telegramBotName").value=s.telegramBotName; $("telegramBotToken").value=s.telegramBotToken; $("telegramChatIds").value=s.telegramChatIds; $("enableTelegramStockUpdate").value=s.enableTelegramStockUpdate; } });
-      loadStartupOverview(); $("barcode").focus();
-
+      loadStartupOverview(); $("barcode").focus(); 
+      
       $("mfg").addEventListener("input", function() {
-        this.value = this.value.replace(/\D/g, '');
+        this.value = this.value.replace(/\D/g, ''); 
         if (this.value.length === 6) { autoCalculateExp(this.value); } else { $("exp").value = ""; }
+      });
+
+      // 🟢 Event Listener สำหรับจับตาดูตอนพนักงานพิมพ์สูตรเลข แล้วคลิกที่อื่น หรือกด Enter
+      $("newQty").addEventListener("blur", function() { evalMathExpression(this); });
+      $("newQty").addEventListener("keypress", function(e) {
+         if(e.key === 'Enter') { evalMathExpression(this); this.blur(); }
       });
     };
   </script>
