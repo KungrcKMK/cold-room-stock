@@ -55,7 +55,7 @@
   <div class="wrap">
     <div class="topbar">
       <div><h1 style="margin:0; font-size:24px;">❄️ ระบบนับสต๊อก</h1></div>
-      <div class="badge" id="versionBadge">V 2.7.0</div>
+      <div class="badge" id="versionBadge">V 2.7.2</div>
     </div>
     <div class="tabbar">
       <button class="tab-btn active" id="tabBtn-stock" onclick="switchTab('stock')">📦 สต๊อก</button>
@@ -85,10 +85,10 @@
         <div class="section">
           <div class="row"><div class="field full"><label>📦 ชื่อสินค้า</label><input type="text" id="productName" readonly></div></div>
           <div class="row">
-            <div class="field"><label>📅 ผลิต (MFG)</label><input type="text" id="mfg" placeholder="เช่น 170326" maxlength="6"></div>
+            <div class="field"><label>📅 ผลิต (MFG) - ddmmyy</label><input type="text" id="mfg" placeholder="เช่น 170326" maxlength="6" inputmode="numeric"></div>
             <div class="field"><label>🔖 ล็อต</label><input type="text" id="lot" placeholder="เช่น A01"></div>
           </div>
-          <div class="row"><div class="field full"><label>⏳ หมดอายุ (EXP)</label><input type="text" id="exp" placeholder="เช่น 170326" maxlength="6"></div></div>
+          <div class="row"><div class="field full"><label>⏳ หมดอายุ (EXP) - ddmmyy</label><input type="text" id="exp" placeholder="เช่น 170326" maxlength="6" inputmode="numeric"></div></div>
         </div>
         <div class="section" style="background:#f1f5f9; padding:15px; border-radius:15px;">
           <div class="field full"><label>✏️ นับได้จริง</label><input type="number" id="newQty" step="0.01" style="font-size:24px; height:60px; border:2px solid var(--primary);"></div>
@@ -100,9 +100,9 @@
 
     <div class="tab-panel" id="tab-balance">
       <div class="card">
-        <h2>📊 ยอดคงเหลือรายล็อต</h2>
+        <h2>📊 ยอดคงเหลือรายล็อต (ddmmyy)</h2>
         <div id="productHeader" style="margin-bottom:15px; padding:12px; background:#e0e7ff; border-radius:12px; font-weight:700; color:var(--primary-dark);">ยังไม่ได้เลือกสินค้า</div>
-        <div class="table-wrap"><table><thead><tr><th>จัดการ</th><th>ล็อต</th><th>ผลิต</th><th>หมดอายุ</th><th>จำนวน</th><th>คงเหลือ(วัน)</th><th>สถานะ</th><th>QC</th></tr></thead><tbody id="balanceBody"></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>จัดการ</th><th>ล็อต</th><th>ผลิต</th><th>หมดอายุ</th><th>จำนวน</th><th>เหลือ(วัน)</th><th>สถานะ</th><th>QC</th></tr></thead><tbody id="balanceBody"></tbody></table></div>
       </div>
     </div>
 
@@ -136,7 +136,8 @@
           <div class="stat"><div class="v" id="sumExpired" style="color:var(--danger)">0</div><div>หมดอายุ</div></div>
         </div>
         <h3>📦 ยอดรวมรายสินค้า</h3><div class="table-wrap"><table><thead><tr><th>ชื่อสินค้า</th><th>ยอดรวม</th><th>หน่วย</th><th>ล็อต</th></tr></thead><tbody id="totalBody"></tbody></table></div>
-        <h3>⚠️ ใกล้หมดอายุ</h3><div class="table-wrap"><table><thead><tr><th>ชื่อสินค้า</th><th>ล็อต</th><th>หมดอายุ</th><th>เหลือ(วัน)</th><th>จำนวน</th></tr></thead><tbody id="expiringBody"></tbody></table></div>
+        <h3>⚠️ ใกล้หมดอายุ (ddmmyy)</h3><div class="table-wrap"><table><thead><tr><th>ชื่อสินค้า</th><th>ล็อต</th><th>หมดอายุ</th><th>เหลือ(วัน)</th><th>จำนวน</th></tr></thead><tbody id="expiringBody"></tbody></table></div>
+        <h3>❌ หมดอายุแล้วค้างอยู่ (ddmmyy)</h3><div class="table-wrap"><table><thead><tr><th>ชื่อสินค้า</th><th>ล็อต</th><th>หมดอายุ</th><th>เลยกำหนด</th><th>จำนวน</th></tr></thead><tbody id="expiredBody"></tbody></table></div>
       </div>
     </div>
 
@@ -153,10 +154,21 @@
   </div>
 
   <script>
-    const APP_VERSION = "2.7.0 Complete";
+    const APP_VERSION = "2.7.2 Total ddmmyy";
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz2AONFYOHEl9lckjwHcwp8DeW8gboWDDBHcptGd82lT6iJeA7SjO63LC_TJaNILAw/exec";
     let currentProduct = null, currentBalances = [], scannerStream = null, scannerRunning = false, scannerLoopHandle = null, barcodeDetector = null, currentScannerMode = 'stock';
     function $(id){ return document.getElementById(id); }
+
+    // 🟢 ฟังก์ชันหลักสำหรับแปลง ISO เป็น ddmmyy สำหรับแสดงผลในตาราง
+    function isoToDdmmyy(iso) {
+      if (!iso || typeof iso !== 'string' || !iso.includes("-")) return iso;
+      const parts = iso.split("-"); // [yyyy, mm, dd]
+      if (parts.length < 3) return iso;
+      const y = parts[0].substring(2, 4);
+      const m = parts[1];
+      const d = parts[2].substring(0, 2);
+      return d + m + y;
+    }
 
     async function callServer(action, payload = {}) {
       $("loader").classList.add("active");
@@ -189,22 +201,30 @@
     }
     function clearStatus(id) { const el = $(id); if(el) { el.innerHTML=""; el.className="status"; } }
 
+    function escapeHtml(t) { return String(t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;"); }
+
     function renderBalances(rows) {
       currentBalances = rows || []; const b = $("balanceBody");
       if(!currentBalances.length) { b.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px;">ไม่มีข้อมูล</td></tr>'; return; }
       b.innerHTML = currentBalances.map((r,i) => `
         <tr>
           <td><div style="display:flex;gap:5px;"><button class="btn-primary" style="padding:6px;font-size:11px;" onclick="selectLot(${i})">เลือก</button><button class="btn-light" style="padding:6px;font-size:11px;color:var(--danger);" onclick="askClearLot(${i})">🗑️เคลียร์</button></div></td>
-          <td><b>${r.LotNo}</b></td><td>${r.MFG}</td><td>${r.EXP}</td><td style="color:var(--primary);font-weight:700;">${r.Qty}</td><td>${r.ExpireDays}</td>
-          <td><span class="pill ${r.ExpireStatus.includes('ปกติ')?'pill-ok':'pill-danger'}">${r.ExpireStatus}</span></td><td>${r.QcShelfLifeStatus}</td>
+          <td><b>${escapeHtml(r.LotNo)}</b></td>
+          <td>${isoToDdmmyy(r.MFG)}</td>
+          <td>${isoToDdmmyy(r.EXP)}</td>
+          <td style="color:var(--primary);font-weight:700;">${r.Qty}</td>
+          <td>${r.ExpireDays}</td>
+          <td><span class="pill ${r.ExpireStatus.includes('ปกติ')?'pill-ok':'pill-danger'}">${r.ExpireStatus}</span></td>
+          <td>${r.QcShelfLifeStatus}</td>
         </tr>
       `).join("");
     }
 
     function selectLot(i) {
       const r = currentBalances[i]; if(!r) return;
-      $("mfg").value = r.MFG.split("-").reverse().join("").substring(0,4)+r.MFG.substring(2,4); // ย้อนเป็น ddmmyy แบบง่ายๆ
-      $("lot").value = r.LotNo; $("exp").value = r.EXP.split("-").reverse().join("").substring(0,4)+r.EXP.substring(2,4);
+      $("mfg").value = isoToDdmmyy(r.MFG);
+      $("lot").value = r.LotNo;
+      $("exp").value = isoToDdmmyy(r.EXP); 
       $("systemQty").value = r.Qty; $("systemQtyDisplay").textContent = r.Qty;
       switchTab('stock'); $("newQty").focus(); setStatus("mainStatus", `เลือกล็อต ${r.LotNo} แล้ว!`, "ok");
     }
@@ -250,7 +270,8 @@
         $("sumProducts").textContent = res.summary.totalProducts; $("sumLots").textContent = res.summary.totalLots;
         $("sumExpiring").textContent = res.summary.expiringLots; $("sumExpired").textContent = res.summary.expiredLots;
         $("totalBody").innerHTML = res.totalByProduct.map(x => `<tr><td>${x.ProductName}</td><td><b>${x.TotalQty}</b></td><td>${x.Unit}</td><td>${x.LotCount}</td></tr>`).join("");
-        $("expiringBody").innerHTML = res.expiringLots.map(x => `<tr><td>${x.ProductName}</td><td>${x.LotNo}</td><td>${x.EXP}</td><td style="color:var(--warn)">${x.ExpireDays}</td><td><b>${x.Qty}</b></td></tr>`).join("");
+        $("expiringBody").innerHTML = res.expiringLots.map(x => `<tr><td>${x.ProductName}</td><td>${x.LotNo}</td><td>${isoToDdmmyy(x.EXP)}</td><td style="color:var(--warn)">${x.ExpireDays}</td><td><b>${x.Qty}</b></td></tr>`).join("");
+        $("expiredBody").innerHTML = res.expiredLots.map(x => `<tr><td>${x.ProductName}</td><td>${x.LotNo}</td><td>${isoToDdmmyy(x.EXP)}</td><td style="color:var(--danger)">${Math.abs(x.ExpireDays)} วัน</td><td><b>${x.Qty}</b></td></tr>`).join("");
       }
     }
 
@@ -284,8 +305,8 @@
       const vid = currentScannerMode==='stock'?"videoStock":"videoNew";
       try {
         const bc = await barcodeDetector.detect($(vid));
-        if(bc && bc.length) {
-          stopCameraScanner(false);
+        if(bc && bc.length) { 
+          stopCameraScanner(false); 
           if(currentScannerMode==='stock') { $("barcode").value=bc[0].rawValue; lookupBarcode(); }
           else { $("newBarcodeView").value=bc[0].rawValue; }
           return;
@@ -294,9 +315,9 @@
       scannerLoopHandle = setTimeout(scanLoop, 250);
     }
 
-    window.onload = () => {
+    window.onload = () => { 
       callServer("getAlertSettings").then(res => { if(res.ok) { const s = res.settings; $("telegramBotName").value=s.telegramBotName; $("telegramBotToken").value=s.telegramBotToken; $("telegramChatIds").value=s.telegramChatIds; $("enableTelegramStockUpdate").value=s.enableTelegramStockUpdate; } });
-      loadStartupOverview(); $("barcode").focus();
+      loadStartupOverview(); $("barcode").focus(); 
     };
   </script>
 </body>
