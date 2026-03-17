@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>ระบบนับสต๊อกห้องเย็น</title>
+  <title>ระบบจัดการคลังสินค้า (Smart Cold-Room WMS)</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Sarabun:wght@400;600;700&display=swap');
     :root{ --bg: #f8fafc; --card: #ffffff; --line: #e2e8f0; --text: #0f172a; --muted: #64748b; --primary: #4f46e5; --primary-dark: #4338ca; --ok: #16a34a; --warn: #ea580c; --danger: #dc2626; --soft-danger: #fee2e2; --radius: 20px; --radius-sm: 12px; --shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
@@ -12,9 +12,9 @@
     .topbar{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:20px; }
     .badge{ background:#e0e7ff; color:var(--primary); padding:6px 14px; border-radius:999px; font-size:13px; font-weight:700; }
     .tabbar{ display:flex; gap:6px; margin-bottom:20px; background: #f1f5f9; padding: 6px; border-radius: 16px; width: 100%; }
-    .tab-btn{ flex: 1 1 0; border:none; padding:12px 2px; border-radius:12px; background:transparent; color:var(--muted); font-size:12px; font-weight:700; cursor:pointer; text-align: center; white-space: nowrap; }
+    .tab-btn{ flex: 1 1 0; border:none; padding:12px 2px; border-radius:12px; background:transparent; color:var(--muted); font-size:12px; font-weight:700; cursor:pointer; text-align: center; white-space: nowrap; transition: 0.2s; }
     .tab-btn.active{ background:var(--card); color:var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-    .tab-panel{ display:none; animation: fadeIn 0.3s; } .tab-panel.active{ display:block; } @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .tab-panel{ display:none; animation: fadeIn 0.3s; } .tab-panel.active{ display:block; } @keyframes fadeIn { from { opacity: 0; transform:translateY(5px); } to { opacity: 1; transform:translateY(0); } }
     .card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:24px; margin-bottom:20px; border:1px solid var(--line); }
     .mini-stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
     .stat{ border:1px solid var(--line); background:#f8fafc; border-radius:16px; padding:16px; text-align: center; }
@@ -22,152 +22,239 @@
     .row{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:16px; }
     .field{ display:flex; flex-direction:column; gap:8px; } .field.full{ grid-column:1 / -1; }
     label{ font-size:13px; font-weight:700; color:var(--muted); }
-    input, select, textarea{ width:100%; padding:14px 16px; border:1px solid var(--line); border-radius:var(--radius-sm); font-size:15px; outline:none; font-family: inherit; }
-    input:focus{ border-color:var(--primary); box-shadow:0 0 0 4px rgba(79, 70, 229, 0.1); }
+    input, select, textarea{ width:100%; padding:14px 16px; border:1px solid var(--line); border-radius:var(--radius-sm); font-size:15px; outline:none; font-family: inherit; transition: 0.2s; }
+    input:focus, textarea:focus{ border-color:var(--primary); box-shadow:0 0 0 4px rgba(79, 70, 229, 0.1); }
     button{ border:none; padding:14px 20px; border-radius:var(--radius-sm); font-size:15px; font-weight:700; cursor:pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+    button:active{ transform: scale(0.97); }
     .btn-primary{ background:var(--primary); color:#fff; } .btn-light{ background:#f1f5f9; color:var(--text); }
     .status{ padding:14px; border-radius:var(--radius-sm); font-size:14px; font-weight: 600; display:none; margin-bottom:16px; border:1px solid transparent; }
     .status.ok{ display:flex; background:#dcfce7; color:#16a34a; border-color:#bbf7d0; }
     .status.warn{ display:flex; background:#ffedd5; color:#ea580c; border-color:#fed7aa; }
     .status.err{ display:flex; background:#fee2e2; color:#dc2626; border-color:#fecaca; }
+
     .big-stat-box { background: var(--primary); color: #fff; padding: 25px; border-radius: 20px; margin-bottom: 20px; text-align: center; box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25); }
     .big-stat-label { font-size: 14px; opacity: 0.9; margin-bottom: 8px; display: block; }
     .big-stat-value { font-size: 56px; font-weight: 800; line-height: 1; }
     .big-stat-unit { font-size: 20px; margin-left: 10px; opacity: 0.8; }
+    .lot-breakdown-box { background: rgba(0,0,0,0.15); border-radius: 12px; padding: 12px; margin-top: 15px; text-align: left; font-size: 14px; line-height: 1.6; display: none; }
+
     .scanner-box{ border-radius:16px; overflow:hidden; background:#000; position:relative; min-height:240px; margin: 10px 0; }
     .scanner-video{ width:100%; height:240px; object-fit:cover; }
     .scanner-frame{ position:absolute; inset:0; border:2px solid #fff; width:70%; height:50%; margin:auto; border-radius:12px; box-shadow:0 0 0 1000px rgba(0,0,0,0.5); }
+
     .table-wrap{ overflow-x:auto; border:1px solid var(--line); border-radius:16px; }
     table{ width:100%; border-collapse:collapse; font-size:14px; min-width:800px; }
     th, td{ padding:14px; text-align:left; border-bottom:1px solid #f1f5f9; }
     th{ background:#f8fafc; font-weight:700; color:var(--muted); font-size:12px; }
     .pill{ padding:4px 10px; border-radius:99px; font-size:12px; font-weight:700; }
     .pill-danger{ background:#fee2e2; color:#dc2626; } .pill-ok{ background:#dcfce7; color:#16a34a; }
+
     #loader { position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; }
     #loader.active { display: flex; }
     .spinner { width: 40px; height: 40px; border: 4px solid var(--line); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    @media (max-width: 600px) { .row{grid-template-columns:1fr} .mini-stats{grid-template-columns:repeat(2,1fr)} .sticky-actions{ position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 16px; display: flex; gap: 10px; border-top: 1px solid var(--line); z-index: 100; } .wrap{padding-bottom: 100px;} }
+
+    #toastBox { position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+    .toast { background: #0f172a; color: #fff; padding: 14px 20px; border-radius: 12px; font-weight: 600; font-size: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; transform: translateY(-20px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 10px; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.ok { border-left: 4px solid var(--ok); }
+    .toast.err { border-left: 4px solid var(--danger); }
+    .toast.warn { border-left: 4px solid var(--warn); }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 9998; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.2s; }
+    .modal-overlay.show { opacity: 1; pointer-events: auto; }
+    .modal-box { background: #fff; width: 90%; max-width: 400px; border-radius: 24px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); transform: scale(0.95); transition: 0.2s; }
+    .modal-overlay.show .modal-box { transform: scale(1); }
+    .modal-box h3 { margin: 0 0 10px 0; font-size: 20px; }
+    .modal-box p { margin: 0 0 20px 0; color: var(--muted); font-size: 15px; line-height: 1.5; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+    @media (max-width: 600px) {
+      .row { grid-template-columns: 1fr; }
+      .mini-stats { grid-template-columns: repeat(2, 1fr); }
+      .sticky-actions { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 16px; display: flex; gap: 10px; border-top: 1px solid var(--line); z-index: 100; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); }
+      .wrap { padding-bottom: 100px; }
+      .table-wrap { border: none; overflow: visible; background: transparent; }
+      table { min-width: 100%; display: block; }
+      thead { display: none; }
+      tbody { display: flex; flex-direction: column; gap: 12px; }
+      tr { display: block; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+      td { display: flex; justify-content: space-between; align-items: center; padding: 8px 4px; border-bottom: 1px dashed var(--line); text-align: right; }
+      td:last-child { border-bottom: none; }
+      td::before { content: attr(data-label); font-weight: 700; color: var(--muted); font-size: 12px; text-transform: uppercase; float: left; text-align: left; }
+    }
   </style>
 </head>
 <body>
   <div id="loader"><div class="spinner"></div><p>กำลังทำงาน...</p></div>
+  <div id="toastBox"></div>
+
+  <div id="customModal" class="modal-overlay">
+    <div class="modal-box">
+      <h3 id="modalTitle">Title</h3>
+      <p id="modalMessage">Message</p>
+      <input type="text" id="modalInput" style="display:none;" autocomplete="off">
+      <div class="modal-actions">
+        <button class="btn-light" id="modalCancelBtn">ยกเลิก</button>
+        <button class="btn-primary" id="modalConfirmBtn">ตกลง</button>
+      </div>
+    </div>
+  </div>
+
   <div class="wrap">
     <div class="topbar">
-      <div><h1 style="margin:0; font-size:24px;">❄️ ระบบนับสต๊อก</h1></div>
-      <div class="badge" id="versionBadge">V 2.7.2</div>
+      <div><h1 style="margin:0; font-size:24px;">❄️ จัดการคลังสินค้า</h1></div>
+      <div class="badge" id="versionBadge">V 3.3.0 Smart Zero</div>
     </div>
     <div class="tabbar">
-      <button class="tab-btn active" id="tabBtn-stock" onclick="switchTab('stock')">📦 สต๊อก</button>
-      <button class="tab-btn" id="tabBtn-balance" onclick="switchTab('balance')">📊 ยอด</button>
-      <button class="tab-btn" id="tabBtn-newproduct" onclick="switchTab('newproduct')">➕ เพิ่ม</button>
-      <button class="tab-btn" id="tabBtn-report" onclick="switchTab('report')">📈 รายงาน</button>
+      <button class="tab-btn active" id="tabBtn-stock" onclick="switchTab('stock')">📦 จัดการ</button>
+      <button class="tab-btn" id="tabBtn-balance" onclick="switchTab('balance')">📊 คงเหลือ</button>
+      <button class="tab-btn" id="tabBtn-newproduct" onclick="switchTab('newproduct')">➕ สินค้าใหม่</button>
+      <button class="tab-btn" id="tabBtn-report" onclick="switchTab('report')">📈 แดชบอร์ด</button>
       <button class="tab-btn" id="tabBtn-settings" onclick="switchTab('settings')">⚙️ ตั้งค่า</button>
     </div>
 
     <div class="tab-panel active" id="tab-stock">
       <div class="card">
-        <h2>📸 สแกนหาสินค้า</h2>
-        <div style="display:flex; gap:10px;"><button class="btn-primary" onclick="startCameraScanner('stock')">📷 เปิดกล้อง</button><button class="btn-light" onclick="stopCameraScanner()">❌ ปิด</button></div>
+        <h2>🔍 ค้นหา / สแกนสินค้า</h2>
+        <div style="display:flex; gap:10px;"><button class="btn-primary" onclick="startCameraScanner('stock')">📷 เปิดกล้องสแกน</button><button class="btn-light" onclick="stopCameraScanner()">❌ ปิด</button></div>
         <div class="scanner-box hide" id="scannerBoxStock"><video id="videoStock" class="scanner-video" playsinline muted></video><div class="scanner-frame"></div></div>
         <div class="status" id="scannerStatusStock"></div>
-        <div class="inline" style="margin-top:15px;"><input type="text" id="barcode" placeholder="บาร์โค้ด" style="flex:1;"><button class="btn-primary" onclick="lookupBarcode()">🔍 ค้นหา</button></div>
-      </div>
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center;"><h2>💾 บันทึกสต๊อก</h2><button class="btn-light" onclick="clearLotFieldsOnly()" style="padding:8px 12px; font-size:12px;">🧹 ล้างช่องล็อต</button></div>
-        <div class="big-stat-box">
-          <span class="big-stat-label">📉 ยอดในระบบปัจจุบัน</span>
-          <span class="big-stat-value" id="systemQtyDisplay">0</span><span class="big-stat-unit" id="masterUnitDisplay">-</span>
-          <input type="hidden" id="systemQty" value="0"><input type="hidden" id="masterUnit" value=""><input type="hidden" id="sku" />
+
+        <div class="inline" style="margin-top:15px;">
+          <input type="text" id="barcode" placeholder="🏷️ สแกนบาร์โค้ด หรือ พิมพ์ชื่อสินค้า..." style="flex:1;" autocomplete="off">
+          <button class="btn-primary" onclick="lookupBarcode()">🔍 ค้นหา</button>
         </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;"><h2>💾 รับเข้า / ตรวจนับสต๊อก</h2><button class="btn-light" onclick="clearLotFieldsOnly()" style="padding:8px 12px; font-size:12px;">🧹 ล้างข้อมูลอัปเดต</button></div>
+
+        <div class="big-stat-box">
+          <span class="big-stat-label">📉 ยอดคงเหลือในระบบ (ทุกรอบการผลิต)</span>
+          <div><span class="big-stat-value" id="totalQtyDisplay">0</span><span class="big-stat-unit" id="masterUnitDisplay">-</span></div>
+          <div class="lot-breakdown-box" id="lotBreakdownDisplay"></div>
+        </div>
+
         <div class="status" id="mainStatus"></div>
-        <div class="row"><div class="field full"><label>👤 ชื่อพนักงาน *</label><input type="text" id="employeeName" placeholder="ชื่อคนนับ"></div></div>
+        <div class="row"><div class="field full"><label>👤 ผู้บันทึก (ชื่อพนักงาน) *</label><input type="text" id="employeeName" placeholder="ระบุชื่อผู้ทำรายการ" autocomplete="off"></div></div>
         <div class="section">
-          <div class="row"><div class="field full"><label>📦 ชื่อสินค้า</label><input type="text" id="productName" readonly></div></div>
+          <div class="row"><div class="field full"><label>📦 ชื่อสินค้า</label><input type="text" id="productName" readonly autocomplete="off"></div></div>
           <div class="row">
-            <div class="field"><label>📅 ผลิต (MFG) - ddmmyy</label><input type="text" id="mfg" placeholder="เช่น 170326" maxlength="6" inputmode="numeric"></div>
-            <div class="field"><label>🔖 ล็อต</label><input type="text" id="lot" placeholder="เช่น A01"></div>
+            <div class="field"><label>📅 วันผลิต (MFG) 6 หลัก *</label><input type="text" id="mfg" placeholder="ตัวเลขเท่านั้น เช่น 170326" maxlength="6" inputmode="numeric" autocomplete="off"></div>
+            <div class="field"><label>⏳ วันหมดอายุ (EXP) *</label><input type="text" id="exp" placeholder="ระบบคำนวณอัตโนมัติ" maxlength="6" inputmode="numeric" autocomplete="off"></div>
           </div>
-          <div class="row"><div class="field full"><label>⏳ หมดอายุ (EXP) - ddmmyy</label><input type="text" id="exp" placeholder="เช่น 170326" maxlength="6" inputmode="numeric"></div></div>
         </div>
         <div class="section" style="background:#f1f5f9; padding:15px; border-radius:15px;">
-          <div class="field full"><label>✏️ นับได้จริง</label><input type="number" id="newQty" step="0.01" style="font-size:24px; height:60px; border:2px solid var(--primary);"></div>
-          <div class="field full" style="margin-top:10px;"><label>💬 หมายเหตุ</label><textarea id="note"></textarea></div>
+          <div class="field full"><label>📦 จำนวน (รับเข้า / นับได้) *</label><input type="number" id="newQty" step="0.01" style="font-size:24px; height:60px; border:2px solid var(--primary);" autocomplete="off"></div>
+          <div class="field full" style="margin-top:10px;"><label>💬 หมายเหตุ (ถ้ามี)</label><textarea id="note" placeholder="เช่น รับสินค้าใหม่, ส่งขายหมดแล้ว" autocomplete="off"></textarea></div>
         </div>
-        <div class="actions sticky-actions"><button class="btn-primary" onclick="saveCount()" style="flex:2;">✅ บันทึกสต๊อก</button><button class="btn-light" onclick="clearEntryOnly()" style="flex:1;">🧹 ล้างทั้งหมด</button></div>
+        <div class="actions sticky-actions"><button class="btn-primary" onclick="saveCount()" style="flex:2;">✅ บันทึกข้อมูล</button><button class="btn-light" onclick="clearEntryOnly()" style="flex:1;">🧹 เริ่มใหม่</button></div>
       </div>
     </div>
 
     <div class="tab-panel" id="tab-balance">
       <div class="card">
-        <h2>📊 ยอดคงเหลือรายล็อต (ddmmyy)</h2>
-        <div id="productHeader" style="margin-bottom:15px; padding:12px; background:#e0e7ff; border-radius:12px; font-weight:700; color:var(--primary-dark);">ยังไม่ได้เลือกสินค้า</div>
-        <div class="table-wrap"><table><thead><tr><th>จัดการ</th><th>ล็อต</th><th>ผลิต</th><th>หมดอายุ</th><th>จำนวน</th><th>เหลือ(วัน)</th><th>สถานะ</th><th>QC</th></tr></thead><tbody id="balanceBody"></tbody></table></div>
+        <h2>📊 สต๊อกคงเหลือรายสินค้า (แยกตามรอบผลิต)</h2>
+        <div class="table-wrap">
+          <table><thead><tr><th>จัดการ</th><th>บาร์โค้ด</th><th>ชื่อสินค้า</th><th>MFG</th><th>EXP</th><th>จำนวน</th><th>เหลือ(วัน)</th><th>สถานะ</th><th>QC</th></tr></thead><tbody id="balanceBody"></tbody></table>
+        </div>
       </div>
     </div>
 
     <div class="tab-panel" id="tab-newproduct">
       <div class="card">
-        <h2>➕ ลงทะเบียนสินค้าใหม่</h2>
+        <h2>➕ ขึ้นทะเบียนสินค้าใหม่ (Master Data)</h2>
         <div style="display:flex; gap:10px;"><button class="btn-primary" onclick="startCameraScanner('new')">📷 สแกนบาร์โค้ด</button><button class="btn-light" onclick="stopCameraScanner()">❌ ปิด</button></div>
         <div class="scanner-box hide" id="scannerBoxNew"><video id="videoNew" class="scanner-video" playsinline muted></video><div class="scanner-frame"></div></div>
         <div class="status" id="newProductStatus"></div>
-        <div class="row" style="margin-top:15px;"><div class="field full"><label>🏷️ เลขบาร์โค้ด *</label><input type="text" id="newBarcodeView"></div></div>
-        <div class="row"><div class="field"><label>📦 ชื่อสินค้า *</label><input type="text" id="newProductName"></div><div class="field"><label>📌 SKU</label><input type="text" id="newSku"></div></div>
+        <div class="row" style="margin-top:15px;"><div class="field full"><label>🏷️ เลขบาร์โค้ด *</label><input type="text" id="newBarcodeView" autocomplete="off"></div></div>
+        <div class="row"><div class="field"><label>📦 ชื่อสินค้า *</label><input type="text" id="newProductName" autocomplete="off"></div><div class="field"><label>📌 รหัสสินค้าภายใน (SKU)</label><input type="text" id="newSku" autocomplete="off"></div></div>
         <div class="row">
-          <div class="field"><label>📏 หน่วย *</label><select id="newUnit"><option value="">--เลือก--</option><option value="ถ้วย">ถ้วย</option><option value="ถุง">ถุง</option></select></div>
-          <div class="field"><label>⏳ อายุมาตรฐาน(วัน)</label><input type="number" id="newStandardShelfLifeDays" value="10"></div>
+          <div class="field"><label>📏 หน่วยนับ *</label><select id="newUnit"><option value="">--เลือก--</option><option value="ถ้วย">ถ้วย</option><option value="ถุง">ถุง</option><option value="ชิ้น">ชิ้น</option><option value="ลัง">ลัง</option></select></div>
+          <div class="field"><label>⏳ อายุมาตรฐาน (วัน)</label><input type="number" id="newStandardShelfLifeDays" value="10" autocomplete="off"></div>
         </div>
         <div class="row">
-          <div class="field"><label>🔔 % เตือน</label><input type="number" id="newWarningPct" value="20"></div>
-          <div class="field"><label>🔔 เตือน(วัน)</label><input type="number" id="newWarningDays" placeholder="ระบุเพื่อข้าม %"></div>
+          <div class="field"><label>🔔 แจ้งเตือนเมื่อใกล้หมดอายุ (%)</label><input type="number" id="newWarningPct" value="20" autocomplete="off"></div>
+          <div class="field"><label>🔔 แจ้งเตือนก่อนหมดอายุ (วัน)</label><input type="number" id="newWarningDays" placeholder="ระบุเพื่อข้ามการใช้ %" autocomplete="off"></div>
         </div>
-        <button class="btn-primary" onclick="saveNewProduct()" style="width:100%;">💾 บันทึกสินค้าใหม่</button>
+        <button class="btn-primary" onclick="saveNewProduct()" style="width:100%;">💾 บันทึกข้อมูลสินค้า</button>
       </div>
     </div>
 
     <div class="tab-panel" id="tab-report">
       <div class="card">
-        <div style="display:flex; justify-content:space-between;"><h2>📈 ภาพรวม</h2><button class="btn-light" onclick="loadStartupOverview()">🔄 รีเฟรช</button></div>
+        <div style="display:flex; justify-content:space-between;"><h2>📈 สรุปภาพรวมคลังสินค้า</h2><button class="btn-light" onclick="loadStartupOverview()">🔄 อัปเดตข้อมูล</button></div>
         <div class="mini-stats">
-          <div class="stat"><div class="v" id="sumProducts">0</div><div>สินค้า</div></div>
-          <div class="stat"><div class="v" id="sumLots">0</div><div>ล็อต</div></div>
-          <div class="stat"><div class="v" id="sumExpiring" style="color:var(--warn)">0</div><div>ใกล้หมด</div></div>
-          <div class="stat"><div class="v" id="sumExpired" style="color:var(--danger)">0</div><div>หมดอายุ</div></div>
+          <div class="stat"><div class="v" id="sumProducts">0</div><div>ชนิดสินค้า</div></div>
+          <div class="stat"><div class="v" id="sumLots">0</div><div>รอบผลิต (MFG)</div></div>
+          <div class="stat"><div class="v" id="sumExpiring" style="color:var(--warn)">0</div><div>ใกล้หมดอายุ</div></div>
+          <div class="stat"><div class="v" id="sumExpired" style="color:var(--danger)">0</div><div>หมดอายุแล้ว</div></div>
         </div>
-        <h3>📦 ยอดรวมรายสินค้า</h3><div class="table-wrap"><table><thead><tr><th>ชื่อสินค้า</th><th>ยอดรวม</th><th>หน่วย</th><th>ล็อต</th></tr></thead><tbody id="totalBody"></tbody></table></div>
-        <h3>⚠️ ใกล้หมดอายุ (ddmmyy)</h3><div class="table-wrap"><table><thead><tr><th>ชื่อสินค้า</th><th>ล็อต</th><th>หมดอายุ</th><th>เหลือ(วัน)</th><th>จำนวน</th></tr></thead><tbody id="expiringBody"></tbody></table></div>
-        <h3>❌ หมดอายุแล้วค้างอยู่ (ddmmyy)</h3><div class="table-wrap"><table><thead><tr><th>ชื่อสินค้า</th><th>ล็อต</th><th>หมดอายุ</th><th>เลยกำหนด</th><th>จำนวน</th></tr></thead><tbody id="expiredBody"></tbody></table></div>
+        <h3>📦 ยอดคงเหลือรวมจำแนกตามสินค้า</h3><div class="table-wrap"><table><thead><tr><th>ชื่อสินค้า</th><th>ยอดรวมทั้งหมด</th><th>หน่วยนับ</th><th>จำนวนรอบผลิต</th></tr></thead><tbody id="totalBody"></tbody></table></div>
+        <h3>⚠️ สินค้าใกล้หมดอายุ (FEFO Alert)</h3><div class="table-wrap"><table><thead><tr><th>ชื่อสินค้า</th><th>ผลิต(MFG)</th><th>หมดอายุ(EXP)</th><th>เวลาที่เหลือ(วัน)</th><th>จำนวนคงเหลือ</th></tr></thead><tbody id="expiringBody"></tbody></table></div>
+        <h3>❌ สินค้าหมดอายุตกค้าง</h3><div class="table-wrap"><table><thead><tr><th>ชื่อสินค้า</th><th>ผลิต(MFG)</th><th>หมดอายุ(EXP)</th><th>เลยกำหนด(วัน)</th><th>จำนวนคงเหลือ</th></tr></thead><tbody id="expiredBody"></tbody></table></div>
       </div>
     </div>
 
     <div class="tab-panel" id="tab-settings">
       <div class="card">
-        <h2>⚙️ ตั้งค่าแจ้งเตือน Telegram</h2>
+        <h2>⚙️ ตั้งค่าการเชื่อมต่อ (System Settings)</h2>
         <div class="status" id="settingsStatus"></div>
-        <div class="row"><div class="field"><label>🤖 ชื่อบอท</label><input type="text" id="telegramBotName"></div><div class="field"><label>📲 แจ้งเตือน</label><select id="enableTelegramStockUpdate"><option value="true">เปิด</option><option value="false">ปิด</option></select></div></div>
-        <div class="row"><div class="field full"><label>🔑 โทเคน</label><input type="password" id="telegramBotToken"></div></div>
-        <div class="row"><div class="field full"><label>💬 รหัสแชต</label><textarea id="telegramChatIds" placeholder="รหัสแชตคั่นด้วย comma"></textarea></div></div>
-        <button class="btn-primary" onclick="saveSettings()">💾 บันทึก</button>
+        <div class="row"><div class="field"><label>🤖 ชื่อบอท Telegram</label><input type="text" id="telegramBotName" autocomplete="off"></div><div class="field"><label>📲 สถานะการแจ้งเตือน</label><select id="enableTelegramStockUpdate"><option value="true">เปิดใช้งาน</option><option value="false">ปิดใช้งาน</option></select></div></div>
+        <div class="row"><div class="field full"><label>🔑 Telegram Bot Token</label><input type="password" id="telegramBotToken" autocomplete="off"></div></div>
+        <div class="row"><div class="field full"><label>💬 Chat ID (กลุ่ม/บุคคล)</label><textarea id="telegramChatIds" placeholder="ระบุ Chat ID คั่นด้วยเครื่องหมายคอมม่า (,)" autocomplete="off"></textarea></div></div>
+        <button class="btn-primary" onclick="saveSettings()">💾 บันทึกการตั้งค่า</button>
       </div>
     </div>
   </div>
 
   <script>
-    const APP_VERSION = "2.7.2 Total ddmmyy";
+    const APP_VERSION = "3.3.0 Smart Zero Tracking";
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz2AONFYOHEl9lckjwHcwp8DeW8gboWDDBHcptGd82lT6iJeA7SjO63LC_TJaNILAw/exec";
-    let currentProduct = null, currentBalances = [], scannerStream = null, scannerRunning = false, scannerLoopHandle = null, barcodeDetector = null, currentScannerMode = 'stock';
+
+    let currentProduct = null, scannerStream = null, scannerRunning = false, scannerLoopHandle = null, barcodeDetector = null, currentScannerMode = 'stock';
+    window.allLotsData = [];
+
     function $(id){ return document.getElementById(id); }
 
-    // 🟢 ฟังก์ชันหลักสำหรับแปลง ISO เป็น ddmmyy สำหรับแสดงผลในตาราง
     function isoToDdmmyy(iso) {
       if (!iso || typeof iso !== 'string' || !iso.includes("-")) return iso;
-      const parts = iso.split("-"); // [yyyy, mm, dd]
-      if (parts.length < 3) return iso;
-      const y = parts[0].substring(2, 4);
-      const m = parts[1];
-      const d = parts[2].substring(0, 2);
-      return d + m + y;
+      const parts = iso.split("-"); if (parts.length < 3) return iso;
+      return parts[2].substring(0, 2) + parts[1] + parts[0].substring(2, 4);
+    }
+    function escapeHtml(t) { return String(t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;"); }
+
+    function showToast(msg, type="ok") {
+      const box = $("toastBox");
+      const t = document.createElement("div");
+      let icon = type==='ok'?'✅':type==='err'?'❌':'⚠️';
+      t.className = `toast ${type}`; t.innerHTML = `<span>${icon}</span> <span>${msg}</span>`;
+      box.appendChild(t);
+      setTimeout(()=>t.classList.add("show"), 10);
+      setTimeout(() => { t.classList.remove("show"); setTimeout(()=>t.remove(), 300); }, 3000);
+    }
+
+    function showModal(type, title, msg) {
+      return new Promise(resolve => {
+        const overlay = $("customModal");
+        $("modalTitle").innerText = title;
+        $("modalMessage").innerHTML = msg.replace(/\n/g, '<br>');
+        const input = $("modalInput");
+
+        if(type === 'prompt') { input.style.display = 'block'; input.value = ''; setTimeout(()=>input.focus(), 100); }
+        else { input.style.display = 'none'; }
+
+        $("modalCancelBtn").style.display = type === 'alert' ? 'none' : 'block';
+        overlay.classList.add("show");
+
+        $("modalCancelBtn").onclick = () => { overlay.classList.remove("show"); resolve(null); };
+        $("modalConfirmBtn").onclick = () => {
+           overlay.classList.remove("show");
+           if(type === 'prompt') resolve(input.value);
+           else resolve(true);
+        };
+      });
     }
 
     async function callServer(action, payload = {}) {
@@ -175,7 +262,7 @@
       try {
         const response = await fetch(GAS_API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action, payload }) });
         return await response.json();
-      } catch (e) { throw new Error("API Error: " + e.message); } finally { $("loader").classList.remove("active"); }
+      } catch (e) { showToast("พบข้อผิดพลาด: " + e.message, "err"); throw e; } finally { $("loader").classList.remove("active"); }
     }
 
     function switchTab(tab) {
@@ -184,15 +271,16 @@
     }
 
     function clearLotFieldsOnly() {
-      ["mfg","lot","exp","newQty","note"].forEach(id => { if($(id)) $(id).value = ""; });
-      $("systemQty").value = "0"; $("systemQtyDisplay").textContent = "0";
-      setStatus("mainStatus", "ล้างช่องล็อตแล้ว พร้อมกรอกล็อตใหม่ครับ 🧹", "ok");
+      ["mfg","exp","newQty","note"].forEach(id => { if($(id)) $(id).value = ""; });
+      showToast("ล้างฟอร์มอัปเดตยอดเรียบร้อยแล้ว", "ok");
     }
 
+    // 🟢 ล้างทุกอย่างในหน้าจอ
     function clearEntryOnly() {
-      ["barcode","mfg","lot","exp","newQty","note","productName","newBarcodeView","newProductName","newSku","newUnit"].forEach(id => { if($(id)) $(id).value = ""; });
-      $("systemQtyDisplay").textContent = "0"; $("masterUnitDisplay").textContent = "-"; $("productHeader").innerHTML = "ยังไม่ได้เลือกสินค้า";
-      renderBalances([]); currentProduct=null; clearStatus("mainStatus"); $("barcode").focus();
+      ["barcode","mfg","exp","newQty","note","productName","newBarcodeView","newProductName","newSku","newUnit"].forEach(id => { if($(id)) $(id).value = ""; });
+      $("totalQtyDisplay").textContent = "0"; $("masterUnitDisplay").textContent = "-";
+      $("lotBreakdownDisplay").style.display = "none"; $("lotBreakdownDisplay").innerHTML = "";
+      currentProduct=null; clearStatus("mainStatus"); $("barcode").focus();
     }
 
     function setStatus(id, msg, type="ok") {
@@ -201,87 +289,175 @@
     }
     function clearStatus(id) { const el = $(id); if(el) { el.innerHTML=""; el.className="status"; } }
 
-    function escapeHtml(t) { return String(t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;"); }
+    function renderLotBreakdown(rows) {
+      const unit = $("masterUnitDisplay").textContent;
+      if(!rows || !rows.length) { $("totalQtyDisplay").textContent = "0"; $("lotBreakdownDisplay").style.display = "none"; return; }
 
-    function renderBalances(rows) {
-      currentBalances = rows || []; const b = $("balanceBody");
-      if(!currentBalances.length) { b.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px;">ไม่มีข้อมูล</td></tr>'; return; }
-      b.innerHTML = currentBalances.map((r,i) => `
-        <tr>
-          <td><div style="display:flex;gap:5px;"><button class="btn-primary" style="padding:6px;font-size:11px;" onclick="selectLot(${i})">เลือก</button><button class="btn-light" style="padding:6px;font-size:11px;color:var(--danger);" onclick="askClearLot(${i})">🗑️เคลียร์</button></div></td>
-          <td><b>${escapeHtml(r.LotNo)}</b></td>
-          <td>${isoToDdmmyy(r.MFG)}</td>
-          <td>${isoToDdmmyy(r.EXP)}</td>
-          <td style="color:var(--primary);font-weight:700;">${r.Qty}</td>
-          <td>${r.ExpireDays}</td>
-          <td><span class="pill ${r.ExpireStatus.includes('ปกติ')?'pill-ok':'pill-danger'}">${r.ExpireStatus}</span></td>
-          <td>${r.QcShelfLifeStatus}</td>
-        </tr>
-      `).join("");
+      const total = rows.reduce((sum, r) => sum + r.Qty, 0);
+      $("totalQtyDisplay").textContent = total;
+
+      let html = `<div style='margin-bottom:6px; font-weight:700; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 4px;'>แยกตามรอบผลิต (MFG):</div>`;
+      html += rows.map((r) => {
+        return `<div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+                  <span>🔸 MFG ${isoToDdmmyy(r.MFG)} (EXP ${isoToDdmmyy(r.EXP)})</span>
+                  <div><span style="margin-right:8px;"><b>${r.Qty}</b> ${unit}</span>
+                  <button class="btn-primary" style="padding:4px 8px; font-size:10px; border-radius:4px;" onclick="selectLotFromBreakdown('${r.MFG}', '${r.EXP}', ${r.Qty})">เลือก</button></div>
+                </div>`;
+      }).join("");
+
+      $("lotBreakdownDisplay").innerHTML = html;
+      $("lotBreakdownDisplay").style.display = "block";
     }
 
-    function selectLot(i) {
-      const r = currentBalances[i]; if(!r) return;
-      $("mfg").value = isoToDdmmyy(r.MFG);
-      $("lot").value = r.LotNo;
-      $("exp").value = isoToDdmmyy(r.EXP); 
-      $("systemQty").value = r.Qty; $("systemQtyDisplay").textContent = r.Qty;
-      switchTab('stock'); $("newQty").focus(); setStatus("mainStatus", `เลือกล็อต ${r.LotNo} แล้ว!`, "ok");
-    }
-
-    async function askClearLot(i) {
-      const row = currentBalances[i], emp = $("employeeName").value.trim();
-      if (!emp) { alert("กรุณาใส่ชื่อพนักงานในหน้าสต๊อกก่อน!"); switchTab('stock'); return; }
-      const reason = prompt(`🗑️ ล็อต ${row.LotNo} จะถูกปรับเป็น 0\nระบุเหตุผล (แจก/ทำลาย):`);
-      if (!reason) return;
-      if (confirm(`ยืนยันการเคลียร์ล็อตนี้? ระบบจะส่งแจ้งเตือน Telegram ทันที`)) {
-        const res = await callServer("clearLotStock", { barcode: row.Barcode, lot: row.LotNo, reason: reason, employeeName: emp });
-        if (res.ok) { alert(res.message); lookupBarcode(); loadStartupOverview(); }
-      }
+    function selectLotFromBreakdown(mfgIso, expIso, qty) {
+      $("mfg").value = isoToDdmmyy(mfgIso); $("exp").value = isoToDdmmyy(expIso);
+      $("newQty").focus(); showToast(`เลือกรอบผลิต ${isoToDdmmyy(mfgIso)} แล้ว!`);
     }
 
     async function lookupBarcode() {
-      const bc = $("barcode").value.trim(); if(!bc) return;
-      const res = await callServer("getProductAndBalances", { barcode: bc });
-      if(!res.found) { $("newBarcodeView").value = bc; switchTab("newproduct"); setStatus("newProductStatus", "ไม่พบสินค้า ลงทะเบียนใหม่ที่นี่ครับ 👇", "warn"); return; }
+      const searchTerm = $("barcode").value.trim(); if(!searchTerm) return;
+
+      const res = await callServer("getProductAndBalances", { barcode: searchTerm });
+      if(!res.found) {
+        if (/^\d+$/.test(searchTerm.replace(/\s+/g, ""))) { $("newBarcodeView").value = searchTerm.replace(/\s+/g, ""); }
+        else { $("newBarcodeView").value = ""; }
+
+        switchTab("newproduct");
+        setStatus("newProductStatus", "ไม่พบสินค้าในระบบ กรุณาขึ้นทะเบียนใหม่ครับ 👇", "warn");
+        return;
+      }
+
       currentProduct = res.product;
-      $("productName").value = res.product.ProductName; $("masterUnitDisplay").textContent = res.product.DefaultUnit;
-      $("productHeader").innerHTML = `📦 ${res.product.ProductName}`;
-      renderBalances(res.balances);
-      setStatus("mainStatus", res.balances.length ? `พบยอดคงเหลือ ${res.balances.length} ล็อต` : "พบสินค้าแล้ว", "ok");
-    }
+      $("barcode").value = res.product.Barcode;
+      $("productName").value = res.product.ProductName;
+      $("masterUnitDisplay").textContent = res.product.DefaultUnit;
 
-    async function saveCount() {
-      const pl = { barcode: $("barcode").value.trim(), employeeName: $("employeeName").value.trim(), lot: $("lot").value.trim(), mfg: $("mfg").value.trim(), exp: $("exp").value.trim(), newQty: $("newQty").value.trim(), note: $("note").value.trim() };
-      if (!pl.employeeName || !pl.lot || !pl.newQty) { alert("กรุณากรอกข้อมูลให้ครบ!"); return; }
-      const res = await callServer("saveOrUpdateCount", pl);
-      if (res.ok) { setStatus("mainStatus", `บันทึกสำเร็จ! อายุ ${res.shelfLifeDays} วัน (${res.qcShelfLifeStatus})`, "ok"); lookupBarcode(); loadStartupOverview(); }
-    }
-
-    async function saveNewProduct() {
-      const pl = { barcode: $("newBarcodeView").value.trim(), productName: $("newProductName").value.trim(), sku: $("newSku").value.trim(), defaultUnit: $("newUnit").value, standardShelfLifeDays: $("newStandardShelfLifeDays").value, warningPercentage: $("newWarningPct").value, warningDays: $("newWarningDays").value };
-      const res = await callServer("saveNewProduct", pl);
-      if (res.ok) { $("barcode").value = pl.barcode; switchTab('stock'); lookupBarcode(); }
+      renderLotBreakdown(res.balances);
+      setStatus("mainStatus", res.balances.length ? `พบข้อมูลสต๊อก กรุณาเลือกรอบผลิตเพื่ออัปเดตยอด` : "ไม่มียอดคงเหลือในระบบ กรุณาระบุรายละเอียดเพื่อรับเข้า", "ok");
     }
 
     async function loadStartupOverview() {
       const res = await callServer("getStartupOverview");
       if(res.ok) {
+        window.allLotsData = res.allLots;
         $("sumProducts").textContent = res.summary.totalProducts; $("sumLots").textContent = res.summary.totalLots;
         $("sumExpiring").textContent = res.summary.expiringLots; $("sumExpired").textContent = res.summary.expiredLots;
-        $("totalBody").innerHTML = res.totalByProduct.map(x => `<tr><td>${x.ProductName}</td><td><b>${x.TotalQty}</b></td><td>${x.Unit}</td><td>${x.LotCount}</td></tr>`).join("");
-        $("expiringBody").innerHTML = res.expiringLots.map(x => `<tr><td>${x.ProductName}</td><td>${x.LotNo}</td><td>${isoToDdmmyy(x.EXP)}</td><td style="color:var(--warn)">${x.ExpireDays}</td><td><b>${x.Qty}</b></td></tr>`).join("");
-        $("expiredBody").innerHTML = res.expiredLots.map(x => `<tr><td>${x.ProductName}</td><td>${x.LotNo}</td><td>${isoToDdmmyy(x.EXP)}</td><td style="color:var(--danger)">${Math.abs(x.ExpireDays)} วัน</td><td><b>${x.Qty}</b></td></tr>`).join("");
+
+        $("totalBody").innerHTML = res.totalByProduct.map(x => `<tr><td data-label="ชื่อสินค้า">${x.ProductName}</td><td data-label="ยอดรวมทั้งหมด"><b>${x.TotalQty}</b></td><td data-label="หน่วยนับ">${x.Unit}</td><td data-label="จำนวนรอบผลิต">${x.LotCount}</td></tr>`).join("");
+        $("expiringBody").innerHTML = res.expiringLots.map(x => `<tr><td data-label="ชื่อสินค้า">${x.ProductName}</td><td data-label="ผลิต(MFG)"><b>${isoToDdmmyy(x.MFG)}</b></td><td data-label="หมดอายุ(EXP)">${isoToDdmmyy(x.EXP)}</td><td data-label="เวลาที่เหลือ(วัน)" style="color:var(--warn)">${x.ExpireDays}</td><td data-label="จำนวนคงเหลือ"><b>${x.Qty}</b></td></tr>`).join("");
+        $("expiredBody").innerHTML = res.expiredLots.map(x => `<tr><td data-label="ชื่อสินค้า">${x.ProductName}</td><td data-label="ผลิต(MFG)"><b>${isoToDdmmyy(x.MFG)}</b></td><td data-label="หมดอายุ(EXP)">${isoToDdmmyy(x.EXP)}</td><td data-label="เลยกำหนด(วัน)" style="color:var(--danger)">${Math.abs(x.ExpireDays)} วัน</td><td data-label="จำนวนคงเหลือ"><b>${x.Qty}</b></td></tr>`).join("");
+
+        const b = $("balanceBody");
+        if(!res.allLots || !res.allLots.length) { b.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:20px;">ไม่มีข้อมูลสต๊อกคงเหลือในระบบ</td></tr>'; }
+        else {
+          b.innerHTML = res.allLots.map((r,i) => `
+            <tr>
+              <td data-label="จัดการ"><div style="display:flex;gap:5px;">
+                <button class="btn-primary" style="padding:6px;font-size:11px;" onclick="selectLotGlobal(${i})">เลือก</button>
+                <button class="btn-light" style="padding:6px;font-size:11px;color:var(--danger);" onclick="askClearLotGlobal(${i})">🗑️นำออก</button>
+              </div></td>
+              <td data-label="บาร์โค้ด" style="font-size:12px; color:var(--muted);">${escapeHtml(r.Barcode)}</td>
+              <td data-label="ชื่อสินค้า"><b>${escapeHtml(r.ProductName)}</b></td>
+              <td data-label="MFG"><b>${isoToDdmmyy(r.MFG)}</b></td>
+              <td data-label="EXP">${isoToDdmmyy(r.EXP)}</td>
+              <td data-label="จำนวน" style="color:var(--primary);font-weight:700;">${r.Qty} <span style="font-size:12px; color:var(--text); font-weight:normal;">${escapeHtml(r.Unit)}</span></td>
+              <td data-label="เหลือ(วัน)">${r.ExpireDays}</td>
+              <td data-label="สถานะ"><span class="pill ${r.ExpireStatus.includes('ปกติ')?'pill-ok':'pill-danger'}">${r.ExpireStatus}</span></td>
+              <td data-label="QC">${r.QcShelfLifeStatus}</td>
+            </tr>
+          `).join("");
+        }
       }
+    }
+
+    async function selectLotGlobal(i) {
+      const r = window.allLotsData[i]; if(!r) return;
+      switchTab('stock'); $("barcode").value = r.Barcode; await lookupBarcode();
+      $("mfg").value = isoToDdmmyy(r.MFG); $("exp").value = isoToDdmmyy(r.EXP);
+      $("newQty").focus(); showToast(`เลือกรอบผลิต ${isoToDdmmyy(r.MFG)} เรียบร้อย!`);
+    }
+
+    // 🟢 ระบบกดปุ่ม เคลียร์ จากแท็บสินค้าทั้งหมด
+    async function askClearLotGlobal(i) {
+      const row = window.allLotsData[i], emp = $("employeeName").value.trim();
+      if (!emp) { await showModal("alert", "ไม่พบข้อมูลพนักงาน", "กรุณาระบุชื่อผู้บันทึกในหน้า 'จัดการ' ก่อนดำเนินการ!"); switchTab('stock'); $("employeeName").focus(); return; }
+
+      const reason = await showModal("prompt", "🗑️ นำสินค้าออกจากสต๊อก", `รอบผลิต ${isoToDdmmyy(row.MFG)} ของ ${row.ProductName}\nกรุณาระบุเหตุผล (เช่น เบิกสินค้า, ตัดชำรุด):`);
+      if (!reason) return;
+
+      const conf = await showModal("confirm", "ยืนยันการนำออก", `ยืนยันการปรับยอดเป็น 0 ใช่หรือไม่?\nระบบจะทำการส่งแจ้งเตือนทันที`);
+      if (conf) {
+        const res = await callServer("clearLotStock", { barcode: row.Barcode, mfg: row.MFG, reason: reason, employeeName: emp });
+        if (res.ok) {
+            if(navigator.vibrate) navigator.vibrate([100,50,100]);
+            showToast("ดำเนินการเรียบร้อยแล้ว");
+            // ล้างหน้าจอทันที เพื่อไม่ให้ข้อมูลเก่าค้าง
+            clearEntryOnly();
+            // ถ้าสินค้านี้กำลังเปิดอยู่ ให้โหลดใหม่
+            if ($("barcode").value.trim() === row.Barcode) lookupBarcode();
+            loadStartupOverview();
+        }
+      }
+    }
+
+    function autoCalculateExp(mfgStr) {
+      if (!/^\d{6}$/.test(mfgStr)) { setStatus("mainStatus", "❌ วันผลิตต้องเป็นตัวเลข 6 หลัก (ddmmyy)", "err"); $("exp").value = ""; return; }
+      const dd = parseInt(mfgStr.substring(0, 2), 10), mm = parseInt(mfgStr.substring(2, 4), 10), yy = parseInt(mfgStr.substring(4, 6), 10), yyyy = 2000 + yy;
+      const mfgDate = new Date(yyyy, mm - 1, dd);
+      if (mfgDate.getFullYear() !== yyyy || mfgDate.getMonth() !== mm - 1 || mfgDate.getDate() !== dd) { setStatus("mainStatus", "❌ รูปแบบวันที่ไม่ถูกต้องตามปฏิทิน", "err"); $("exp").value = ""; return; }
+
+      if (!currentProduct) return;
+      const shelfLife = parseInt(currentProduct.StandardShelfLifeDays, 10);
+      if (isNaN(shelfLife) || shelfLife <= 0) { setStatus("mainStatus", "⚠️ ไม่พบค่าอายุมาตรฐาน กรุณาระบุวันหมดอายุเอง", "warn"); return; }
+
+      mfgDate.setDate(mfgDate.getDate() + shelfLife);
+      const outDd = String(mfgDate.getDate()).padStart(2, "0"), outMm = String(mfgDate.getMonth() + 1).padStart(2, "0"), outYy = String(mfgDate.getFullYear()).substring(2, 4);
+
+      $("exp").value = outDd + outMm + outYy;
+      setStatus("mainStatus", `✅ คำนวณวันหมดอายุอัตโนมัติสำเร็จ (+${shelfLife} วัน)`, "ok");
+    }
+
+    // 🟢 ระบบบันทึกสต๊อก และตรวจจับการคีย์ 0
+    async function saveCount() {
+      const pl = { barcode: $("barcode").value.trim(), employeeName: $("employeeName").value.trim(), mfg: $("mfg").value.trim(), exp: $("exp").value.trim(), newQty: $("newQty").value.trim(), note: $("note").value.trim() };
+      if (!pl.employeeName || !pl.mfg || !pl.exp || !pl.newQty) { await showModal("alert", "ข้อมูลไม่ครบถ้วน", "กรุณาระบุข้อมูลให้ครบ:\n(ชื่อพนักงาน, วันผลิต, วันหมดอายุ, จำนวน)"); return; }
+
+      // ตรวจสอบกรณีลูกค้าตั้งใจปรับยอดเป็น 0
+      const qtyVal = Number(pl.newQty);
+      if (qtyVal === 0 && !pl.note) {
+          const reason = await showModal("prompt", "สินค้ารายการนี้หมดแล้ว?", "คุณระบุจำนวนเป็น 0\nกรุณาให้เหตุผล (เช่น ขายหมด, เบิกของหมดแล้ว):");
+          if (!reason) return; // ถ้ากดยกเลิก ไม่ต้องทำต่อ
+          pl.note = reason;
+          $("note").value = reason;
+      }
+
+      const res = await callServer("saveOrUpdateCount", pl);
+      if (res.ok) {
+        if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
+        showToast(qtyVal === 0 ? "ปรับยอดเป็น 0 และนำออกจากสต๊อกแล้ว" : "บันทึกข้อมูลเข้าสต๊อกเรียบร้อย!");
+
+        // 🟢 ล้างหน้าจอทันที เพื่อไม่ให้ข้อมูลเก่าค้าง
+        const currentBarcode = $("barcode").value.trim();
+        clearEntryOnly();
+        $("barcode").value = currentBarcode;
+        lookupBarcode(); // โหลดข้อมูลใหม่ (ตัวที่เป็น 0 จะหายไป)
+        loadStartupOverview();
+      }
+    }
+
+    async function saveNewProduct() {
+      const pl = { barcode: $("newBarcodeView").value.trim(), productName: $("newProductName").value.trim(), sku: $("newSku").value.trim(), defaultUnit: $("newUnit").value, standardShelfLifeDays: $("newStandardShelfLifeDays").value, warningPercentage: $("newWarningPct").value, warningDays: $("newWarningDays").value };
+      const res = await callServer("saveNewProduct", pl);
+      if (res.ok) { showToast("ขึ้นทะเบียนสินค้าสำเร็จ!"); $("barcode").value = pl.barcode; switchTab('stock'); lookupBarcode(); }
     }
 
     async function saveSettings() {
       const pl = { telegramBotName: $("telegramBotName").value, telegramBotToken: $("telegramBotToken").value, telegramChatIds: $("telegramChatIds").value, enableTelegramStockUpdate: $("enableTelegramStockUpdate").value };
       const res = await callServer("saveAlertSettings", pl);
-      if(res.ok) setStatus("settingsStatus", "บันทึกแล้ว", "ok");
+      if(res.ok) showToast("บันทึกการตั้งค่าสำเร็จ");
     }
 
-    function stopCameraScanner(show = true) {
+    function stopCameraScanner() {
       scannerRunning = false; if(scannerLoopHandle) clearTimeout(scannerLoopHandle);
       if(scannerStream) { scannerStream.getTracks().forEach(t=>t.stop()); scannerStream=null; }
       $("scannerBoxStock").classList.add("hide"); $("scannerBoxNew").classList.add("hide");
@@ -290,14 +466,14 @@
     async function startCameraScanner(mode) {
       currentScannerMode = mode;
       const box = mode==='stock'?"scannerBoxStock":"scannerBoxNew", vid = mode==='stock'?"videoStock":"videoNew";
-      if(!("BarcodeDetector" in window)) { alert("เบราว์เซอร์ไม่รองรับกล้อง"); return; }
+      if(!("BarcodeDetector" in window)) { await showModal("alert", "แจ้งเตือน", "เบราว์เซอร์หรืออุปกรณ์ของคุณไม่รองรับการสแกนผ่านกล้อง"); return; }
       try {
-        stopCameraScanner(false);
+        stopCameraScanner();
         barcodeDetector = new BarcodeDetector({ formats: ["ean_13","ean_8","upc_a","code_128","code_39","itf"] });
         scannerStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
         $(vid).srcObject = scannerStream; $(box).classList.remove("hide"); await $(vid).play();
         scannerRunning = true; scanLoop();
-      } catch(e) { alert("เปิดกล้องไม่ได้: "+e.message); }
+      } catch(e) { await showModal("alert", "ข้อผิดพลาด", "ไม่สามารถเปิดกล้องได้: "+e.message); }
     }
 
     async function scanLoop() {
@@ -305,8 +481,9 @@
       const vid = currentScannerMode==='stock'?"videoStock":"videoNew";
       try {
         const bc = await barcodeDetector.detect($(vid));
-        if(bc && bc.length) { 
-          stopCameraScanner(false); 
+        if(bc && bc.length) {
+          if(navigator.vibrate) navigator.vibrate([50, 50, 50]);
+          stopCameraScanner();
           if(currentScannerMode==='stock') { $("barcode").value=bc[0].rawValue; lookupBarcode(); }
           else { $("newBarcodeView").value=bc[0].rawValue; }
           return;
@@ -315,9 +492,14 @@
       scannerLoopHandle = setTimeout(scanLoop, 250);
     }
 
-    window.onload = () => { 
+    window.onload = () => {
       callServer("getAlertSettings").then(res => { if(res.ok) { const s = res.settings; $("telegramBotName").value=s.telegramBotName; $("telegramBotToken").value=s.telegramBotToken; $("telegramChatIds").value=s.telegramChatIds; $("enableTelegramStockUpdate").value=s.enableTelegramStockUpdate; } });
-      loadStartupOverview(); $("barcode").focus(); 
+      loadStartupOverview(); $("barcode").focus();
+
+      $("mfg").addEventListener("input", function() {
+        this.value = this.value.replace(/\D/g, '');
+        if (this.value.length === 6) { autoCalculateExp(this.value); } else { $("exp").value = ""; }
+      });
     };
   </script>
 </body>
