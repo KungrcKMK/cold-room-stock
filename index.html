@@ -104,7 +104,7 @@
   <div class="wrap">
     <div class="topbar">
       <div><h1 style="margin:0; font-size:24px;">❄️ จัดการคลังสินค้า</h1></div>
-      <div class="badge" id="versionBadge">V 3.4.1 Smart Calc</div>
+      <div class="badge" id="versionBadge">V 3.4.2 PDF Update</div>
     </div>
     <div class="tabbar">
       <button class="tab-btn active" id="tabBtn-stock" onclick="switchTab('stock')">📦 จัดการ</button>
@@ -216,7 +216,7 @@
   </div>
 
   <script>
-    const APP_VERSION = "3.4.1 Smart Calc";
+    const APP_VERSION = "3.4.2 Custom PDF Export";
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz2AONFYOHEl9lckjwHcwp8DeW8gboWDDBHcptGd82lT6iJeA7SjO63LC_TJaNILAw/exec";
     
     let currentProduct = null, scannerStream = null, scannerRunning = false, scannerLoopHandle = null, barcodeDetector = null, currentScannerMode = 'stock';
@@ -252,8 +252,20 @@
 
       } else if (format === 'pdf') {
         const dateStr = new Date().toLocaleString('th-TH');
-        let html = `<!DOCTYPE html><html><head><title>รายงานสต๊อกคงเหลือ</title><style>@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');body { font-family: 'Sarabun', sans-serif; padding: 20px; color: #0f172a; }h2 { text-align: center; margin-bottom: 5px; }p { text-align: center; color: #64748b; font-size: 14px; margin-bottom: 20px; }table { width: 100%; border-collapse: collapse; font-size: 14px; }th, td { border: 1px solid #cbd5e1; padding: 8px 12px; text-align: left; }th { background-color: #f1f5f9; font-weight: 700; text-align: center; }.num { text-align: right; font-weight: 700; color: #4f46e5; }.center { text-align: center; }@media print { @page { size: A4 portrait; margin: 1cm; } }</style></head><body><h2>รายงานสต๊อกคงเหลือ (เรียงตามรอบการผลิตล่าสุด)</h2><p>ข้อมูลอัปเดต ณ วันที่: ${dateStr}</p><table><thead><tr><th>บาร์โค้ด</th><th>ชื่อสินค้า</th><th>ผลิต(MFG)</th><th>หมดอายุ(EXP)</th><th>จำนวน</th><th>หน่วย</th><th>สถานะ</th></tr></thead><tbody>`;
-        sortedData.forEach(r => { html += `<tr><td class="center">${escapeHtml(r.Barcode)}</td><td>${escapeHtml(r.ProductName)}</td><td class="center">${isoToDdmmyy(r.MFG)}</td><td class="center">${isoToDdmmyy(r.EXP)}</td><td class="num">${r.Qty}</td><td class="center">${escapeHtml(r.Unit)}</td><td class="center">${r.ExpireStatus}</td></tr>`; });
+        
+        // 🔴 ปรับตาราง PDF ให้โชว์เฉพาะคอลัมน์ที่บอสต้องการ
+        let html = `<!DOCTYPE html><html><head><title>รายงานสต๊อกคงเหลือ</title><style>@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');body { font-family: 'Sarabun', sans-serif; padding: 20px; color: #0f172a; }h2 { text-align: center; margin-bottom: 5px; }p { text-align: center; color: #64748b; font-size: 14px; margin-bottom: 20px; }table { width: 100%; border-collapse: collapse; font-size: 14px; }th, td { border: 1px solid #cbd5e1; padding: 8px 12px; text-align: left; }th { background-color: #f1f5f9; font-weight: 700; text-align: center; }.num { text-align: right; font-weight: 700; color: #4f46e5; }.center { text-align: center; }@media print { @page { size: A4 portrait; margin: 1cm; } }</style></head><body><h2>รายงานสต๊อกคงเหลือ (เรียงตามรอบการผลิตล่าสุด)</h2><p>ข้อมูลอัปเดต ณ วันที่: ${dateStr}</p><table><thead><tr><th>ชื่อสินค้า</th><th>MFG</th><th>จำนวน</th><th>เหลือ(วัน)</th><th>สถานะ</th><th>QC</th></tr></thead><tbody>`;
+        
+        sortedData.forEach(r => { 
+          html += `<tr>
+            <td>${escapeHtml(r.ProductName)}</td>
+            <td class="center">${isoToDdmmyy(r.MFG)}</td>
+            <td class="num">${r.Qty} <span style="font-size:12px;color:#64748b;">${escapeHtml(r.Unit)}</span></td>
+            <td class="center">${r.ExpireDays}</td>
+            <td class="center">${r.ExpireStatus}</td>
+            <td class="center">${r.QcShelfLifeStatus}</td>
+          </tr>`; 
+        });
         html += `</tbody></table></body></html>`;
 
         const printWin = window.open('', '', 'width=900,height=600');
@@ -428,25 +440,17 @@
       setStatus("mainStatus", `✅ คำนวณวันหมดอายุอัตโนมัติสำเร็จ (+${shelfLife} วัน)`, "ok");
     }
 
-    // 🟢 ระบบคำนวณเลขสูตรคณิตศาสตร์ในช่องจำนวน (เช่น 16*48+5)
     function evalMathExpression(el) {
-      let val = String(el.value).trim().replace(/x/gi, '*'); // เปลี่ยนตัว x เป็นเครื่องหมายคูณให้ด้วย
+      let val = String(el.value).trim().replace(/x/gi, '*');
       if(/^[0-9+\-*/().\s]+$/.test(val)) {
-        try { 
-          let result = new Function('return ' + val)();
-          // ปัดเศษให้สวยงามถ้ามีทศนิยม
-          el.value = Math.round(result * 100) / 100; 
-        } catch(e) {}
+        try { let result = new Function('return ' + val)(); el.value = Math.round(result * 100) / 100; } catch(e) {}
       }
     }
 
     async function saveCount() {
-      // 🟢 แอบคำนวณตัวเลขก่อนเซฟ (เผื่อผู้ใช้พิมพ์สูตรแล้วกดเซฟเลย)
       evalMathExpression($("newQty"));
-
       const pl = { barcode: $("barcode").value.trim(), employeeName: $("employeeName").value.trim(), mfg: $("mfg").value.trim(), exp: $("exp").value.trim(), newQty: $("newQty").value.trim(), note: $("note").value.trim() };
       
-      // เปลี่ยนเงื่อนไขการเช็ก pl.newQty ให้รองรับเลข 0 และกันกรณีเป็นช่องว่าง
       if (!pl.employeeName || !pl.mfg || !pl.exp || pl.newQty === "" || isNaN(pl.newQty)) { 
         await showModal("alert", "ข้อมูลไม่ครบถ้วน", "กรุณาระบุข้อมูลให้ครบและถูกต้อง:\n(ชื่อพนักงาน, วันผลิต, วันหมดอายุ, จำนวนต้องเป็นตัวเลข)"); 
         return; 
@@ -524,7 +528,6 @@
         if (this.value.length === 6) { autoCalculateExp(this.value); } else { $("exp").value = ""; }
       });
 
-      // 🟢 Event Listener สำหรับจับตาดูตอนพนักงานพิมพ์สูตรเลข แล้วคลิกที่อื่น หรือกด Enter
       $("newQty").addEventListener("blur", function() { evalMathExpression(this); });
       $("newQty").addEventListener("keypress", function(e) {
          if(e.key === 'Enter') { evalMathExpression(this); this.blur(); }
