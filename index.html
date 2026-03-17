@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ระบบนับสต๊อกห้องเย็น</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Sarabun:wght@400;600;700&display=swap');
+
+    :root{
+      --bg: #f8fafc; --card: #ffffff; --line: #e2e8f0; --text: #0f172a; --muted: #64748b;
+      --primary: #4f46e5; --primary-dark: #4338ca; --ok: #16a34a; --warn: #ea580c; --danger: #dc2626;
+      --soft-ok: #dcfce7; --soft-warn: #ffedd5; --soft-danger: #fee2e2;
+      --radius: 20px; --radius-sm: 12px;
+      --shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.01);
+    }
+    *{box-sizing:border-box}
+    body{ margin:0; background:var(--bg); color:var(--text); font-family: 'Inter', 'Sarabun', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    .wrap{ max-width:1450px; margin:20px auto; padding:14px; width: 100%; }
+    .topbar{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
+    .title{ margin:0; font-size:28px; font-weight:700; letter-spacing: -0.5px; }
+    .sub{ margin-top:6px; font-size:14px; color:var(--muted); }
+    .badge{ background:#e0e7ff; color:var(--primary); padding:6px 14px; border-radius:999px; font-size:13px; font-weight:700; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.1); }
+
+    .tabbar{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; background: #f1f5f9; padding: 6px; border-radius: 16px; }
+    .tab-btn{ border:none; padding:12px 18px; border-radius:12px; background:transparent; color:var(--muted); font-size:14px; font-weight:700; cursor:pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active{ background:var(--card); color:var(--primary); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+
+    .tab-panel{ display:none; animation: fadeIn 0.3s ease-in-out; }
+    .tab-panel.active{ display:block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    .card{ background:var(--card); border:1px solid rgba(255,255,255,0.1); border-radius:var(--radius); box-shadow:var(--shadow); padding:24px; margin-bottom:20px; width: 100%; }
+    .card h2{ margin:0 0 16px 0; font-size:20px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+
+    .mini-stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+    .stat{ border:1px solid var(--line); background:#f8fafc; border-radius:16px; padding:16px; transition: transform 0.2s; }
+    .stat:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .stat .k{ color:var(--muted); font-size:13px; font-weight:600; margin-bottom:8px; }
+    .stat .v{ font-size:28px; font-weight:700; color: var(--primary); }
+
+    .section{ margin-top:20px; padding-top:20px; border-top:1px dashed var(--line); }
+    .section-title{ font-size:16px; font-weight:700; margin-bottom:14px; display: flex; align-items: center; gap: 6px; }
+
+    .row{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:16px; }
+    .field{ display:flex; flex-direction:column; gap:8px; }
+    .field.full{ grid-column:1 / -1; }
+    label{ font-size:13px; font-weight:700; color:var(--muted); }
+
+    input, select, textarea{ width:100%; padding:14px 16px; border:1px solid var(--line); border-radius:var(--radius-sm); font-size:15px; outline:none; background:#f8fafc; transition: all 0.2s; font-family: inherit; }
+    input:focus, select:focus, textarea:focus{ background:#fff; border-color:var(--primary); box-shadow:0 0 0 4px rgba(79, 70, 229, 0.15); }
+    input[readonly]{ background:#f1f5f9; color:#475569; font-weight:600; cursor: not-allowed; }
+    textarea{ min-height:100px; resize:vertical; }
+
+    .inline{ display:flex; gap:10px; align-items:center; }
+    .inline > *{ flex:1; }
+
+    button{ display: inline-flex; justify-content: center; align-items: center; gap: 6px; border:none; padding:14px 20px; border-radius:var(--radius-sm); font-size:15px; font-weight:700; cursor:pointer; white-space:nowrap; transition: all 0.2s; font-family: inherit; }
+    button:active { transform: scale(0.97); }
+    .btn-primary{ background:var(--primary); color:#fff; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
+    .btn-primary:hover{ background:var(--primary-dark); box-shadow: 0 6px 15px rgba(79, 70, 229, 0.4); }
+    .btn-light{ background:#f1f5f9; color:var(--text); }
+    .btn-light:hover{ background:#e2e8f0; }
+
+    .actions{ display:flex; flex-wrap:wrap; gap:12px; margin-top:16px; }
+
+    .status{ margin-top:16px; padding:14px 16px; border-radius:var(--radius-sm); font-size:14px; font-weight: 600; display:none; flex-direction: row; align-items: center; gap: 10px; }
+    .status.ok{ display:flex; background:var(--soft-ok); color:var(--ok); border:1px solid #bbf7d0; }
+    .status.warn{ display:flex; background:var(--soft-warn); color:var(--warn); border:1px solid #fed7aa; }
+    .status.err{ display:flex; background:var(--soft-danger); color:var(--danger); border:1px solid #fecaca; }
+    .note{ font-size:12px; color:var(--muted); margin-top:6px; line-height: 1.4; }
+
+    .table-wrap{ overflow-x:auto; -webkit-overflow-scrolling: touch; border:1px solid var(--line); border-radius:16px; background:#fff; max-width: 100%; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02); }
+    table{ width:100%; border-collapse:collapse; min-width:980px; font-size:14px; }
+    th, td{ padding:14px 16px; border-bottom:1px solid #f1f5f9; text-align:left; vertical-align:middle; }
+    th{ position:sticky; top:0; background:#f8fafc; z-index:1; font-weight: 700; color: var(--muted); text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
+    tr:hover td { background: #f8fafc; }
+
+    .pill{ display:inline-flex; align-items: center; gap: 4px; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:700; }
+    .pill-ok{ background:var(--soft-ok); color:var(--ok); }
+    .pill-warn{ background:var(--soft-warn); color:var(--warn); }
+    .pill-danger{ background:var(--soft-danger); color:var(--danger); }
+    .hide{ display:none; }
+
+    .scanner-box{ border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#0f172a; position:relative; min-height:280px; margin-top:16px; box-shadow: inner 0 0 20px rgba(0,0,0,0.5); }
+    .scanner-video{ width:100%; height:280px; object-fit:cover; display:block; background:#0f172a; opacity: 0.9; }
+    .scanner-overlay{ position:absolute; inset:0; pointer-events:none; display:flex; justify-content:center; align-items:center; }
+    .scanner-frame{ width:70%; height:40%; border:3px solid rgba(255,255,255,0.9); border-radius:20px; box-shadow:0 0 0 2000px rgba(15, 23, 42, 0.4); }
+    .scanner-frame::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 2px solid var(--primary); border-radius: 18px; animation: scanpulse 2s infinite; }
+    @keyframes scanpulse { 0% { opacity: 0.5; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.5; transform: scale(0.98); } }
+
+    /* Loading Overlay (สำหรับตอนรอเน็ต) */
+    #loader { position: fixed; inset: 0; background: rgba(255,255,255,0.7); backdrop-filter: blur(4px); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; display: none; }
+    #loader.active { display: flex; }
+    .spinner { width: 50px; height: 50px; border: 5px solid var(--line); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 1100px){ .row{grid-template-columns:1fr} .mini-stats{grid-template-columns:repeat(2,1fr)} .inline{flex-direction:column; align-items:stretch} }
+    @media (max-width: 600px) {
+      .wrap { padding: 10px; margin: 0; padding-bottom: 100px; }
+      .card { padding: 20px 16px; border-radius: 24px; }
+      input, select, textarea { font-size: 16px !important; padding: 16px 14px; }
+      button { width: 100%; padding: 16px; font-size: 16px; border-radius: 14px; }
+      .actions { flex-direction: column; gap: 10px; margin-top: 16px; }
+      .actions button { width: 100%; }
+      .tabbar { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; gap: 8px; scrollbar-width: none; background: transparent; padding: 0; margin-bottom: 24px; }
+      .tabbar::-webkit-scrollbar { display: none; }
+      .tab-btn { flex: 1 0 auto; padding: 12px 20px; font-size: 14px; border-radius: 999px; background: #f1f5f9; }
+      .tab-btn.active { background: var(--primary); }
+      .scanner-box { min-height: 240px; } .scanner-video { height: 240px; }
+      .table-wrap { border-right: none; border-left: none; border-radius: 0; margin: 0 -16px; box-shadow: none; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+      th, td { padding: 14px 12px; }
+      .sticky-actions { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 16px; box-shadow: 0 -10px 25px rgba(0,0,0,0.05); z-index: 100; display: flex; flex-direction: row; gap: 12px; margin: 0; border-top: 1px solid rgba(255,255,255,0.3); }
+      .sticky-actions button { padding: 16px; margin: 0; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="loader"><div class="spinner"></div><p style="margin-top: 16px; font-weight: 600; color: var(--primary);">กำลังประมวลผล...</p></div>
+
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <h1 class="title">❄️ ระบบนับสต๊อกห้องเย็น</h1>
+        <div class="sub">สแกนบาร์โค้ด หรือพิมพ์เอง เพื่อจัดการสต๊อกแบบเรียลไทม์ 🚀</div>
+      </div>
+      <div class="badge" id="versionBadge">เวอร์ชัน 1.8.0</div>
+    </div>
+
+    <div class="tabbar">
+      <button class="tab-btn active" id="tabBtn-stock" onclick="switchTab('stock')">📦 นับสต๊อก</button>
+      <button class="tab-btn" id="tabBtn-balance" onclick="switchTab('balance')">📊 ยอดคงเหลือ</button>
+      <button class="tab-btn" id="tabBtn-report" onclick="switchTab('report')">📈 รายงาน</button>
+      <button class="tab-btn" id="tabBtn-settings" onclick="switchTab('settings')">⚙️ ตั้งค่า</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-stock">
+      <div class="card">
+        <h2>📸 สแกนกล้องมือถือ</h2>
+        <div class="actions" style="margin-top:0;">
+          <button class="btn-primary" type="button" onclick="startCameraScanner()">📷 เปิดกล้องสแกน</button>
+          <button class="btn-light" type="button" onclick="stopCameraScanner()">❌ ปิดกล้อง</button>
+        </div>
+        <div class="scanner-box">
+          <video id="scannerVideo" class="scanner-video" playsinline muted></video>
+          <div class="scanner-overlay"><div class="scanner-frame"></div></div>
+        </div>
+        <div class="status" id="scannerStatus"></div>
+        <div class="note">💡 แนะนำใช้ Chrome หรือ Safari เวอร์ชั่นล่าสุด</div>
+      </div>
+
+      <div class="card">
+        <h2>💾 บันทึกและอัปเดตสต๊อก</h2>
+        <div class="row">
+          <div class="field"><label for="checkDate">🕒 เวลาตรวจนับ</label><input type="text" id="checkDate" value="อัตโนมัติ (ตามเวลาเซิร์ฟเวอร์)" readonly style="color:var(--ok); font-weight: bold;" /></div>
+          <div class="field">
+            <label for="coldRoom">❄️ ห้องเย็น (ไม่บังคับ)</label>
+            <select id="coldRoom">
+              <option value="">-- ไม่ระบุ --</option>
+              <option>ห้องเย็น 1</option><option>ห้องเย็น 2</option><option>ห้องเย็น 3</option><option>ห้องแช่แข็ง</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="employeeName">👤 ชื่อพนักงาน <span style="color:var(--danger)">*</span></label><input type="text" id="employeeName" placeholder="ระบุชื่อพนักงานที่นับสต๊อก" /></div>
+          <div class="field"><label for="location">📍 ตำแหน่ง (ไม่บังคับ)</label><input type="text" id="location" placeholder="เช่น ชั้น 2 / พาเลท 3" /></div>
+        </div>
+        <div class="row">
+          <div class="field full">
+            <label for="barcode">🏷️ สแกนหรือกรอกบาร์โค้ด</label>
+            <div class="inline">
+              <input type="text" id="barcode" placeholder="ยิงเครื่องสแกนหรือพิมพ์เอง แล้วกด Enter" />
+              <button class="btn-primary" type="button" onclick="lookupBarcode()">🔍 ค้นหา</button>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="sku">📌 SKU (ไม่บังคับ)</label><input type="text" id="sku" readonly /></div>
+          <div class="field"><label for="masterUnit">📏 หน่วยสินค้า</label><input type="text" id="masterUnit" readonly /></div>
+        </div>
+
+        <div class="status" id="mainStatus"></div>
+
+        <div class="section">
+          <div class="section-title">📝 นำเข้าข้อมูล 4 ช่อง</div>
+          <div class="row">
+            <div class="field"><label for="productName">📦 ช่อง 1: ชื่อสินค้า</label><input type="text" id="productName" placeholder="ชื่อสินค้า" /></div>
+            <div class="field"><label for="mfg">📅 ช่อง 2: วันผลิต (MFG)</label><input type="text" id="mfg" placeholder="เช่น 170326" maxlength="6" inputmode="numeric" /></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="lot">🔖 ช่อง 3: เลขล็อต</label><input type="text" id="lot" placeholder="เช่น A01" /></div>
+            <div class="field"><label for="exp">⏳ ช่อง 4: วันหมดอายุ (EXP)</label><input type="text" id="exp" placeholder="เช่น 170326" maxlength="6" inputmode="numeric" /></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="systemQty">📉 ยอดในระบบปัจจุบัน</label><input type="number" id="systemQty" readonly /></div>
+            <div class="field"><label for="newQty">✏️ นับสต๊อกใหม่</label><input type="number" id="newQty" min="0" step="0.01" placeholder="ยอดที่นับได้จริงล่าสุด" /></div>
+          </div>
+          <div class="row"><div class="field full"><label for="note">💬 หมายเหตุ</label><textarea id="note" placeholder="เช่น ตรวจนับรอบเช้า / พบสินค้าชำรุด"></textarea></div></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">✨ ตัวช่วยแยกจากข้อความบนฉลาก</div>
+          <div class="row">
+            <div class="field"><label for="rawMfgLot">ข้อความ MFG + ล็อต</label><input type="text" id="rawMfgLot" placeholder="เช่น MFG180326A01" /></div>
+            <div class="field"><label for="rawExp">ข้อความ EXP</label><input type="text" id="rawExp" placeholder="เช่น EXP280326" /></div>
+          </div>
+          <div class="actions"><button class="btn-light" type="button" onclick="parseRawLabel()">⚡ ช่วยแยกค่าอัตโนมัติ</button></div>
+        </div>
+
+        <div class="section hide" id="newProductSection">
+          <div class="section-title">➕ เพิ่มสินค้าใหม่เข้าระบบ</div>
+          <div class="row">
+            <div class="field"><label for="newProductName">ชื่อสินค้าใหม่</label><input type="text" id="newProductName" placeholder="ชื่อสินค้า" /></div>
+            <div class="field"><label for="newSku">SKU (ไม่บังคับ)</label><input type="text" id="newSku" placeholder="ถ้าไม่มีปล่อยว่างได้" /></div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="newUnit">หน่วยสินค้า</label>
+              <select id="newUnit"><option value="">-- เลือกหน่วย --</option><option value="ถ้วย">ถ้วย</option><option value="ถุง">ถุง</option></select>
+            </div>
+            <div class="field"><label for="newStandardShelfLifeDays">อายุมาตรฐาน (วัน)</label><input type="number" id="newStandardShelfLifeDays" min="0" step="1" placeholder="เช่น 10" /></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="newWarningPct">% เตือนหมดอายุ</label><input type="number" id="newWarningPct" placeholder="เช่น 20" value="20" /></div>
+            <div class="field"><label for="newWarningDays">เตือนเมื่อเหลือกี่วัน</label><input type="number" id="newWarningDays" placeholder="เช่น 7 (เว้นได้)" /></div>
+          </div>
+          <div class="row"><div class="field full"><label for="newBarcodeView">บาร์โค้ด</label><input type="text" id="newBarcodeView" readonly /></div></div>
+          <div class="actions"><button class="btn-primary" type="button" onclick="saveNewProduct()">💾 บันทึกสินค้าใหม่</button></div>
+        </div>
+
+        <div class="actions sticky-actions">
+          <button class="btn-primary" type="button" onclick="saveCount()">✅ บันทึกอัปเดตสต๊อก</button>
+          <button class="btn-light" type="button" onclick="clearEntryOnly()">🧹 ล้างรายการ</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-balance">
+      <div class="card">
+        <h2>📊 ยอดคงเหลือแยกตามล็อต</h2>
+        <div class="muted" id="productHeader" style="margin-bottom: 16px; font-weight: 600; color: var(--primary-dark); padding: 12px; background: #e0e7ff; border-radius: 12px;">
+          ยังไม่ได้เลือกสินค้า (แสกนบาร์โค้ดในหน้า นับสต๊อก ก่อน)
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>เลือก</th><th>ล็อต</th><th>วันผลิต</th><th>วันหมดอายุ</th><th>คงเหลือ</th><th>เหลืออีก</th><th>สถานะวันหมดอายุ</th><th>อายุสินค้า</th><th>ผลตรวจ QC</th><th>หมายเหตุ QC</th></tr>
+            </thead>
+            <tbody id="balanceBody">
+              <tr><td colspan="10" class="muted" style="text-align:center; padding: 24px;">📭 ยังไม่มีข้อมูล</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-report">
+      <div class="card">
+        <div class="inline" style="justify-content:space-between; margin-bottom:16px;">
+          <h2 style="margin:0;">📈 รายงานภาพรวม</h2>
+          <div class="actions" style="margin:0;"><button class="btn-light" type="button" onclick="loadStartupOverview()">🔄 รีเฟรช</button></div>
+        </div>
+        <div class="status" id="reportStatus"></div>
+        <div class="mini-stats">
+          <div class="stat"><div class="k">📦 จำนวนสินค้า</div><div class="v" id="sumProducts">0</div></div>
+          <div class="stat"><div class="k">📑 จำนวนล็อตคงเหลือ</div><div class="v" id="sumLots">0</div></div>
+          <div class="stat"><div class="k">⚠️ ล็อตใกล้หมดอายุ</div><div class="v" id="sumExpiring" style="color: var(--warn);">0</div></div>
+          <div class="stat"><div class="k">❌ ล็อตหมดอายุค้างอยู่</div><div class="v" id="sumExpired" style="color: var(--danger);">0</div></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">📦 จำนวนคงเหลือรวม</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>บาร์โค้ด</th><th>SKU</th><th>ชื่อสินค้า</th><th>จำนวนรวม</th><th>หน่วย</th><th>จำนวนล็อต</th></tr></thead>
+              <tbody id="totalBody"><tr><td colspan="6" class="muted" style="text-align:center;">📭 ยังไม่มีข้อมูล</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-title">⚠️ ล็อตไหนจะหมดอายุก่อน</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>บาร์โค้ด</th><th>ชื่อสินค้า</th><th>ล็อต</th><th>วันผลิต</th><th>วันหมดอายุ</th><th>เหลืออีก</th><th>คงเหลือ</th><th>ห้องเย็น</th><th>ตำแหน่ง</th></tr></thead>
+              <tbody id="expiringBody"><tr><td colspan="9" class="muted" style="text-align:center;">📭 ยังไม่มีข้อมูล</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-title">❌ ล็อตไหนหมดอายุแล้วแต่ยังค้างอยู่</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>บาร์โค้ด</th><th>ชื่อสินค้า</th><th>ล็อต</th><th>วันหมดอายุ</th><th>เลยกำหนด</th><th>คงเหลือ</th><th>ห้องเย็น</th><th>ตำแหน่ง</th></tr></thead>
+              <tbody id="expiredBody"><tr><td colspan="8" class="muted" style="text-align:center;">📭 ยังไม่มีข้อมูล</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-title">🔍 อายุสินค้าแต่ละล็อตผิดมาตรฐานหรือไม่</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>บาร์โค้ด</th><th>ชื่อสินค้า</th><th>ล็อต</th><th>วันผลิต</th><th>วันหมดอายุ</th><th>อายุ(วัน)</th><th>คงเหลือ</th><th>ผลตรวจ QC</th><th>หมายเหตุ QC</th></tr></thead>
+              <tbody id="qcBody"><tr><td colspan="9" class="muted" style="text-align:center;">📭 ยังไม่มีข้อมูล</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-settings">
+      <div class="card">
+        <h2>🔔 ตั้งค่าการแจ้งเตือน Telegram</h2>
+        <div class="status" id="settingsStatus"></div>
+        <div class="row">
+          <div class="field"><label for="telegramBotName">🤖 ชื่อบอท Telegram</label><input type="text" id="telegramBotName" placeholder="เช่น บอทห้องเย็น" /></div>
+          <div class="field">
+            <label for="enableTelegramStockUpdate">📲 ส่ง Telegram เมื่ออัปเดตสต๊อก</label>
+            <select id="enableTelegramStockUpdate"><option value="true">เปิด</option><option value="false">ปิด</option></select>
+          </div>
+        </div>
+        <div class="row"><div class="field full"><label for="telegramBotToken">🔑 โทเคนบอท Telegram</label><input type="password" id="telegramBotToken" placeholder="ถ้าว่าง = ไม่ส่งแจ้งเตือน" /></div></div>
+        <div class="row"><div class="field full"><label for="telegramChatIds">💬 รหัสแชต Telegram</label><textarea id="telegramChatIds" placeholder="ใส่ได้หลายค่า คั่นด้วย comma หรือขึ้นบรรทัดใหม่"></textarea></div></div>
+        <div class="actions">
+          <button class="btn-primary" type="button" onclick="saveSettings()">💾 บันทึกการตั้งค่า</button>
+          <button class="btn-light" type="button" onclick="loadSettings()">🔄 โหลดค่าปัจจุบัน</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const APP_VERSION = "1.8.0 API Mode (GitHub Pages)";
+
+    // 🔴🔴🔴 สำคัญมาก! นำ URL ของเว็บแอป (จากขั้นตอนที่ 1) มาใส่ตรงนี้ 🔴🔴🔴
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz2AONFYOHEl9lckjwHcwp8DeW8gboWDDBHcptGd82lT6iJeA7SjO63LC_TJaNILAw/exec";
+
+    let currentProduct = null, currentBalances = [], scannerStream = null, scannerRunning = false, scannerLoopHandle = null, barcodeDetector = null;
+    function $(id){ return document.getElementById(id); }
+
+    // ==========================================
+    // 🚀 ส่วนเชื่อมต่อ API (Fetch)
+    // ==========================================
+    async function callServer(action, payload = {}) {
+      $("loader").classList.add("active");
+      try {
+        const response = await fetch(GAS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: action, payload: payload })
+        });
+        if (!response.ok) throw new Error("การเชื่อมต่อเครือข่ายมีปัญหา");
+        return await response.json();
+      } catch (error) {
+        throw new Error("ไม่สามารถติดต่อเซิร์ฟเวอร์ได้: " + error.message);
+      } finally {
+        $("loader").classList.remove("active");
+      }
+    }
+
+    // ==========================================
+    // 🎨 UI & Logic
+    // ==========================================
+    function isoToDdmmyy(iso) {
+      if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso;
+      const parts = iso.split("-"); return parts[2] + parts[1] + parts[0].substring(2, 4);
+    }
+    function escapeHtml(t) { return String(t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;"); }
+    function qcPill(s) { if(s==="ผิดปกติ") return `<span class="pill pill-danger">🔴 ${escapeHtml(s)}</span>`; if(s==="เตือน") return `<span class="pill pill-warn">🟡 ${escapeHtml(s)}</span>`; return `<span class="pill pill-ok">🟢 ${escapeHtml(s||"ปกติ")}</span>`; }
+    function expirePill(s) { if(s.includes("หมดอายุแล้ว")||s.includes("หมดอายุวันนี้")) return `<span class="pill pill-danger">🔴 ${escapeHtml(s)}</span>`; if(s.includes("ใกล้")) return `<span class="pill pill-warn">🟡 ${escapeHtml(s)}</span>`; return `<span class="pill pill-ok">🟢 ${escapeHtml(s||"ปกติ")}</span>`; }
+
+    function setStatus(id, msg, type="ok") {
+      const el = $(id); if(!el) return;
+      let icon = "✅"; if(type==="warn") icon = "⚠️"; if(type==="err") icon = "❌";
+      el.innerHTML = `<div>${icon}</div><div>${msg||""}</div>`; el.className = "status "+type;
+    }
+    function clearStatus(id) { const el = $(id); if(el) { el.innerHTML=""; el.className="status"; } }
+    function setVersion(v) { $("versionBadge").textContent = "เวอร์ชัน " + (v||APP_VERSION); }
+
+    function switchTab(tab) {
+      ["stock", "balance", "report", "settings"].forEach(n => {
+        const p = $(`tab-${n}`), b = $(`tabBtn-${n}`);
+        if(p) p.classList.toggle("active", n===tab); if(b) b.classList.toggle("active", n===tab);
+      });
+      if(tab!=="stock") stopCameraScanner(false);
+    }
+
+    function clearEntryOnly() {
+      ["barcode","sku","masterUnit","productName","mfg","lot","exp","systemQty","newQty","note","rawMfgLot","rawExp","newBarcodeView","newProductName","newSku","newUnit","newStandardShelfLifeDays"].forEach(id => $(id).value = "");
+      $("newWarningPct").value = "20"; $("newWarningDays").value = "";
+      $("productHeader").innerHTML = "ยังไม่ได้เลือกสินค้า (แสกนบาร์โค้ดในหน้า <span style='color:var(--primary);'>นับสต๊อก</span> ก่อน)";
+      $("newProductSection").classList.add("hide");
+      renderBalances([]); currentProduct=null; clearStatus("mainStatus"); $("barcode").focus();
+    }
+
+    function setProductUI(p) {
+      currentProduct = p||null;
+      $("sku").value = p ? (p.SKU||"") : ""; $("masterUnit").value = p ? (p.DefaultUnit||"") : ""; $("productName").value = p ? (p.ProductName||"") : "";
+      let wt = "-"; if(p) { const wp = p.WarningPercentage!==undefined ? (Number(p.WarningPercentage)*100).toFixed(0) : 20; const wd = p.WarningDays; wt = wd ? `เหลือน้อยกว่า ${wd} วัน` : `เหลือน้อยกว่า ${wp}% ของอายุสินค้า`; }
+      $("productHeader").innerHTML = p ? `📦 สินค้า: ${p.ProductName||"-"} <br><span style="font-size:13px; color:var(--muted); font-weight:normal;">📌 SKU: ${p.SKU||"-"} | 🔔 เงื่อนไขเตือนหมดอายุ: ${wt}</span>` : "ยังไม่ได้เลือกสินค้า (แสกนบาร์โค้ดในหน้า นับสต๊อก ก่อน)";
+    }
+
+    function renderBalances(rows) {
+      currentBalances = Array.isArray(rows) ? rows : []; const b = $("balanceBody");
+      if(!currentBalances.length) { b.innerHTML = `<tr><td colspan="10" class="muted" style="text-align:center; padding: 24px;">📭 ไม่พบยอดคงเหลือของสินค้านี้</td></tr>`; return; }
+      b.innerHTML = currentBalances.map((r,i) => `<tr><td><button class="btn-primary" style="padding: 8px 14px; font-size: 13px; border-radius: 8px;" type="button" onclick="selectLot(${i})">👉 เลือกล็อตนี้</button></td><td style="font-weight:600;">${escapeHtml(r.LotNo)}</td><td>${escapeHtml(r.MFG)}</td><td>${escapeHtml(r.EXP)}</td><td style="font-size:16px; font-weight:700; color:var(--primary);">${escapeHtml(r.Qty)}</td><td>${escapeHtml(r.ExpireDays)}</td><td>${expirePill(r.ExpireStatus)}</td><td>${escapeHtml(r.ShelfLifeDays)}</td><td>${qcPill(r.QcShelfLifeStatus)}</td><td>${escapeHtml(r.QcShelfLifeNote)}</td></tr>`).join("");
+    }
+
+    function selectLot(i) {
+      const r = currentBalances[i]; if(!r) return;
+      $("mfg").value = isoToDdmmyy(r.MFG)||""; $("lot").value = r.LotNo||""; $("exp").value = isoToDdmmyy(r.EXP)||""; $("systemQty").value = r.Qty||0;
+      switchTab('stock'); $("newQty").focus(); setStatus("mainStatus", `เลือกล็อต ${r.LotNo} แล้ว! กรุณาระบุจำนวนนับสต๊อกใหม่ด้านล่าง 👇`, "ok");
+    }
+
+    function renderStartupOverview(r) {
+      const s = r.summary||{};
+      $("sumProducts").textContent = s.totalProducts||0; $("sumLots").textContent = s.totalLots||0; $("sumExpiring").textContent = s.expiringLots||0; $("sumExpired").textContent = s.expiredLots||0;
+      $("totalBody").innerHTML = !(r.totalByProduct||[]).length ? '<tr><td colspan="6" class="muted" style="text-align:center;">📭 ยังไม่มีข้อมูล</td></tr>' : r.totalByProduct.map(x => `<tr><td>${escapeHtml(x.Barcode)}</td><td>${escapeHtml(x.SKU)}</td><td style="font-weight:600;">${escapeHtml(x.ProductName)}</td><td><span style="font-weight:700; color:var(--primary);">${escapeHtml(x.TotalQty)}</span></td><td>${escapeHtml(x.Unit)}</td><td>${escapeHtml(x.LotCount)}</td></tr>`).join("");
+      $("expiringBody").innerHTML = !(r.expiringLots||[]).length ? `<tr><td colspan="9" class="muted" style="text-align:center;">✅ ไม่พบล็อตที่ใกล้หมดอายุ</td></tr>` : r.expiringLots.map(x => `<tr><td>${escapeHtml(x.Barcode)}</td><td style="font-weight:600;">${escapeHtml(x.ProductName)}</td><td>${escapeHtml(x.LotNo)}</td><td>${escapeHtml(x.MFG)}</td><td>${escapeHtml(x.EXP)}</td><td style="color:var(--warn); font-weight:700;">${escapeHtml(x.ExpireDays)}</td><td><span style="font-weight:700;">${escapeHtml(x.Qty)}</span> ${escapeHtml(x.Unit)}</td><td>${escapeHtml(x.ColdRoom||"-")}</td><td>${escapeHtml(x.Location||"-")}</td></tr>`).join("");
+      $("expiredBody").innerHTML = !(r.expiredLots||[]).length ? '<tr><td colspan="8" class="muted" style="text-align:center;">✅ ไม่พบล็อตหมดอายุที่ยังค้างอยู่</td></tr>' : r.expiredLots.map(x => `<tr><td>${escapeHtml(x.Barcode)}</td><td style="font-weight:600;">${escapeHtml(x.ProductName)}</td><td>${escapeHtml(x.LotNo)}</td><td>${escapeHtml(x.EXP)}</td><td style="color:var(--danger); font-weight:700;">${escapeHtml(Math.abs(Number(x.ExpireDays||0)))} วัน</td><td><span style="font-weight:700;">${escapeHtml(x.Qty)}</span> ${escapeHtml(x.Unit)}</td><td>${escapeHtml(x.ColdRoom||"-")}</td><td>${escapeHtml(x.Location||"-")}</td></tr>`).join("");
+      $("qcBody").innerHTML = !(r.qcLots||[]).length ? '<tr><td colspan="9" class="muted" style="text-align:center;">📭 ยังไม่มีข้อมูล QC ต่อแต่ละล็อต</td></tr>' : r.qcLots.map(x => `<tr><td>${escapeHtml(x.Barcode)}</td><td style="font-weight:600;">${escapeHtml(x.ProductName)}</td><td>${escapeHtml(x.LotNo)}</td><td>${escapeHtml(x.MFG)}</td><td>${escapeHtml(x.EXP)}</td><td>${escapeHtml(x.ShelfLifeDays)}</td><td><span style="font-weight:700;">${escapeHtml(x.Qty)}</span> ${escapeHtml(x.Unit)}</td><td>${qcPill(x.QcShelfLifeStatus)}</td><td>${escapeHtml(x.QcShelfLifeNote)}</td></tr>`).join("");
+    }
+
+    function loadStartupOverview() {
+      clearStatus("reportStatus");
+      callServer("getStartupOverview").then(res => {
+        if(!res||!res.ok) { setStatus("reportStatus", res?.message||"โหลดไม่สำเร็จ", "err"); return; }
+        setVersion(res.version); renderStartupOverview(res);
+        const s = res.summary||{};
+        if((s.expiredLots||0)>0) setStatus("reportStatus", `พบล็อตหมดอายุค้างอยู่ ${s.expiredLots} ล็อต และใกล้หมดอายุ ${s.expiringLots||0} ล็อต`, "warn");
+        else if((s.expiringLots||0)>0 || (s.qcIssues||0)>0) setStatus("reportStatus", `พบล็อตใกล้หมดอายุ ${s.expiringLots||0} ล็อต และมีประเด็น QC ${s.qcIssues||0} ล็อต`, "warn");
+      }).catch(err => setStatus("reportStatus", "ผิดพลาด: "+err.message, "err"));
+    }
+
+    function lookupBarcode() {
+      clearStatus("mainStatus"); const bc = $("barcode").value.trim();
+      if(!bc) { setStatus("mainStatus", "กรุณาสแกนหรือกรอกบาร์โค้ดก่อนครับ", "warn"); return; }
+      callServer("getProductAndBalances", { barcode: bc }).then(res => {
+        setVersion(res.version);
+        if(!res||!res.ok) { setProductUI(null); renderBalances([]); setStatus("mainStatus", res?.message||"ค้นหาไม่สำเร็จ", "err"); return; }
+        if(!res.found) {
+          setProductUI(null); renderBalances([]); $("newProductSection").classList.remove("hide"); $("newBarcodeView").value = bc;
+          setStatus("mainStatus", "ไม่พบบาร์โค้ดนี้ในระบบ กรุณาสร้างสินค้าใหม่ด้านล่างได้เลยครับ 👇", "warn"); return;
+        }
+        $("newProductSection").classList.add("hide"); setProductUI(res.product); renderBalances(res.balances||[]);
+        const c = res.balances?.length||0;
+        if(c>0) setStatus("mainStatus", `พบสินค้า! มียอดคงเหลือ ${c} ล็อต (กดเลือกที่แท็บ "ยอดคงเหลือ") หรือกรอกล็อตใหม่ด้านล่างได้เลยครับ`, "ok");
+        else setStatus("mainStatus", "พบสินค้าในระบบ! กรุณากรอกข้อมูลล็อตใหม่เพื่ออัปเดตสต๊อกครับ", "ok");
+      }).catch(err => setStatus("mainStatus", "ผิดพลาด: "+err.message, "err"));
+    }
+
+    function parseRawLabel() {
+      clearStatus("mainStatus");
+      callServer("parseLabelText", { rawMfgLot: $("rawMfgLot").value.trim(), rawExp: $("rawExp").value.trim() }).then(res => {
+        if(!res||!res.ok) { setStatus("mainStatus", res?.message||"แยกข้อมูลไม่สำเร็จ", "err"); return; }
+        $("mfg").value = res.parsed.rawMfg || isoToDdmmyy(res.parsed.mfg) || ""; $("lot").value = res.parsed.lot || ""; $("exp").value = res.parsed.rawExp || isoToDdmmyy(res.parsed.exp) || "";
+        setStatus("mainStatus", "ดึงข้อมูลจากฉลากสำเร็จ! 🎉", "ok");
+      }).catch(err => setStatus("mainStatus", "ผิดพลาด: "+err.message, "err"));
+    }
+
+    function saveNewProduct() {
+      clearStatus("mainStatus");
+      const pl = { barcode: $("newBarcodeView").value.trim(), sku: $("newSku").value.trim(), productName: $("newProductName").value.trim(), defaultUnit: $("newUnit").value.trim(), standardShelfLifeDays: $("newStandardShelfLifeDays").value.trim(), warningPercentage: $("newWarningPct").value.trim(), warningDays: $("newWarningDays").value.trim() };
+      callServer("saveNewProduct", pl).then(res => {
+        if(!res||!res.ok) { setStatus("mainStatus", res?.message||"เพิ่มสินค้าไม่สำเร็จ", "err"); return; }
+        $("newProductSection").classList.add("hide"); $("barcode").value = pl.barcode;
+        setStatus("mainStatus", "สร้างสินค้าใหม่เรียบร้อย! กำลังโหลดข้อมูล...", "ok"); lookupBarcode(); loadStartupOverview();
+      }).catch(err => setStatus("mainStatus", "ผิดพลาด: "+err.message, "err"));
+    }
+
+    function saveCount() {
+      clearStatus("mainStatus");
+      const pl = { barcode: $("barcode").value.trim(), coldRoom: $("coldRoom").value.trim(), employeeName: $("employeeName").value.trim(), location: $("location").value.trim(), note: $("note").value.trim(), productName: $("productName").value.trim(), mfg: $("mfg").value.trim(), lot: $("lot").value.trim(), exp: $("exp").value.trim(), newQty: $("newQty").value.trim() };
+      callServer("saveOrUpdateCount", pl).then(res => {
+        if(!res||!res.ok) { setStatus("mainStatus", res?.message||"บันทึกไม่สำเร็จ", "err"); return; }
+        renderBalances(res.balances||[]); $("systemQty").value = res.newQty;
+        setStatus("mainStatus", `บันทึกเสร็จสิ้น! 🎉 | ${res.actionTypeThai} | ยอดเดิม ${res.prevQty} → ยอดใหม่ ${res.newQty} | อายุ ${res.shelfLifeDays} วัน`, res.qcShelfLifeStatus==="ผิดปกติ"?"err":(res.qcShelfLifeStatus==="เตือน"?"warn":"ok"));
+        loadStartupOverview();
+      }).catch(err => setStatus("mainStatus", "ผิดพลาด: "+err.message, "err"));
+    }
+
+    function loadSettings() {
+      clearStatus("settingsStatus");
+      callServer("getAlertSettings").then(res => {
+        if(!res||!res.ok) { setStatus("settingsStatus", res?.message||"โหลดตั้งค่าไม่สำเร็จ", "err"); return; }
+        setVersion(res.version); const s = res.settings||{};
+        $("telegramBotName").value = s.telegramBotName||""; $("telegramBotToken").value = s.telegramBotToken||""; $("telegramChatIds").value = s.telegramChatIds||""; $("enableTelegramStockUpdate").value = s.enableTelegramStockUpdate||"true";
+      }).catch(err => setStatus("settingsStatus", "ผิดพลาด: "+err.message, "err"));
+    }
+
+    function saveSettings() {
+      clearStatus("settingsStatus");
+      callServer("saveAlertSettings", { telegramBotName: $("telegramBotName").value.trim(), telegramBotToken: $("telegramBotToken").value.trim(), telegramChatIds: $("telegramChatIds").value.trim(), enableTelegramStockUpdate: $("enableTelegramStockUpdate").value }).then(res => {
+        if(!res||!res.ok) { setStatus("settingsStatus", res?.message||"บันทึกไม่สำเร็จ", "err"); return; }
+        setVersion(res.version); setStatus("settingsStatus", "บันทึกการตั้งค่าเรียบร้อย ✅", "ok"); loadStartupOverview();
+      }).catch(err => setStatus("settingsStatus", "ผิดพลาด: "+err.message, "err"));
+    }
+
+    function stopCameraScanner(showInfo = true) {
+      scannerRunning = false; if(scannerLoopHandle) { clearTimeout(scannerLoopHandle); scannerLoopHandle=null; }
+      const v = $("scannerVideo"); if(v) { try{v.pause();}catch(e){} v.srcObject=null; }
+      if(scannerStream) { scannerStream.getTracks().forEach(t=>t.stop()); scannerStream=null; }
+      if(showInfo) setStatus("scannerStatus", "ปิดกล้องสแกนแล้ว", "ok");
+    }
+
+    async function startCameraScanner() {
+      clearStatus("scannerStatus");
+      if(!("BarcodeDetector" in window)) { setStatus("scannerStatus", "เบราว์เซอร์ไม่รองรับการสแกนผ่านกล้อง", "warn"); return; }
+      try {
+        stopCameraScanner(false);
+        const sf = BarcodeDetector.getSupportedFormats ? await BarcodeDetector.getSupportedFormats() : [];
+        const pf = ["ean_13","ean_8","upc_a","upc_e","code_128","code_39","itf"];
+        barcodeDetector = new BarcodeDetector({ formats: sf.length ? pf.filter(f=>sf.includes(f)) : pf });
+        setStatus("scannerStatus", "กำลังเปิดกล้อง... 📷", "ok");
+        scannerStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+        const v = $("scannerVideo"); v.srcObject = scannerStream; await v.play();
+        scannerRunning = true; setStatus("scannerStatus", "กำลังสแกนบาร์โค้ดจากกล้องหลัง... 🔍", "ok"); scanLoop();
+      } catch(e) { setStatus("scannerStatus", "เปิดกล้องไม่สำเร็จ: "+e.message, "err"); }
+    }
+
+    async function scanLoop() {
+      if(!scannerRunning) return; const v = $("scannerVideo");
+      try {
+        if(v && v.readyState >= 2 && barcodeDetector) {
+          const bc = await barcodeDetector.detect(v);
+          if(bc && bc.length) { const c = String(bc[0].rawValue||"").trim(); if(c) { $("barcode").value=c; stopCameraScanner(false); setStatus("scannerStatus", `สแกนสำเร็จ: ${c} 🎉`, "ok"); lookupBarcode(); return; } }
+        }
+      } catch(e){}
+      scannerLoopHandle = setTimeout(scanLoop, 250);
+    }
+
+    window.addEventListener("load", () => { loadSettings(); loadStartupOverview(); switchTab('stock'); $("barcode").focus(); });
+    $("barcode").addEventListener("keydown", (e) => { if(e.key==="Enter") { e.preventDefault(); lookupBarcode(); } });
+  </script>
+</body>
+</html>
