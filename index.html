@@ -193,7 +193,7 @@
         <div style="display:flex; justify-content:space-between;"><h2>📈 สรุปภาพรวมคลังสินค้า</h2><button class="btn-light" onclick="loadStartupOverview()">🔄 อัปเดตข้อมูล</button></div>
         <div class="mini-stats">
           <div class="stat"><div class="v" id="sumProducts">0</div><div>ชนิดสินค้า</div></div>
-          <div class="stat"><div class="v" id="sumLots">0</div><div>รอบผลิต (MFG)</div></div>
+          <div class="stat"><div class="v" id="sumLots">0</div><div>แยกตามวันที่ล๊อตผลิต</div></div>
           <div class="stat"><div class="v" id="sumExpiring" style="color:var(--warn)">0</div><div>ใกล้หมดอายุ</div></div>
           <div class="stat"><div class="v" id="sumExpired" style="color:var(--danger)">0</div><div>หมดอายุแล้ว</div></div>
         </div>
@@ -331,7 +331,7 @@
       const total = rows.reduce((sum, r) => sum + r.Qty, 0);
       $("totalQtyDisplay").textContent = total;
       
-      let html = `<div style='margin-bottom:6px; font-weight:700; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 4px;'>แยกตามรอบผลิต (MFG):</div>`;
+      let html = `<div style='margin-bottom:6px; font-weight:700; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 4px;'>แยกตามรอบวันที่ผลิต:</div>`;
       html += rows.map((r) => {
         return `<div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
                   <span>🔸 MFG ${isoToDdmmyy(r.MFG)} (EXP ${isoToDdmmyy(r.EXP)})</span>
