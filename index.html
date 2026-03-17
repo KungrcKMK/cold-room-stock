@@ -21,68 +21,69 @@
     .title{ margin:0; font-size:28px; font-weight:700; letter-spacing: -0.5px; }
     .sub{ margin-top:6px; font-size:14px; color:var(--muted); }
     .badge{ background:#e0e7ff; color:var(--primary); padding:6px 14px; border-radius:999px; font-size:13px; font-weight:700; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.1); }
-
-    .tabbar{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; background: #f1f5f9; padding: 6px; border-radius: 16px; }
-    .tab-btn{ border:none; padding:12px 18px; border-radius:12px; background:transparent; color:var(--muted); font-size:14px; font-weight:700; cursor:pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    
+    /* 🔴 ปรับแก้ Tabbar ให้ฟิตพอดีจอ ไม่ต้องเลื่อน */
+    .tabbar{ display:flex; gap:6px; width: 100%; margin-bottom:20px; background: #f1f5f9; padding: 6px; border-radius: 16px; }
+    .tab-btn{ flex: 1 1 0; border:none; padding:12px 2px; border-radius:12px; background:transparent; color:var(--muted); font-size:13px; font-weight:700; cursor:pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: center; white-space: nowrap; }
     .tab-btn:hover { color: var(--text); }
     .tab-btn.active{ background:var(--card); color:var(--primary); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
-
+    
     .tab-panel{ display:none; animation: fadeIn 0.3s ease-in-out; }
     .tab-panel.active{ display:block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
+    
     .card{ background:var(--card); border:1px solid rgba(255,255,255,0.1); border-radius:var(--radius); box-shadow:var(--shadow); padding:24px; margin-bottom:20px; width: 100%; }
     .card h2{ margin:0 0 16px 0; font-size:20px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-
+    
     .mini-stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
     .stat{ border:1px solid var(--line); background:#f8fafc; border-radius:16px; padding:16px; transition: transform 0.2s; }
     .stat:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
     .stat .k{ color:var(--muted); font-size:13px; font-weight:600; margin-bottom:8px; }
     .stat .v{ font-size:28px; font-weight:700; color: var(--primary); }
-
+    
     .section{ margin-top:20px; padding-top:20px; border-top:1px dashed var(--line); }
     .section-title{ font-size:16px; font-weight:700; margin-bottom:14px; display: flex; align-items: center; gap: 6px; }
-
+    
     .row{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:16px; }
     .field{ display:flex; flex-direction:column; gap:8px; }
     .field.full{ grid-column:1 / -1; }
     label{ font-size:13px; font-weight:700; color:var(--muted); }
-
+    
     input, select, textarea{ width:100%; padding:14px 16px; border:1px solid var(--line); border-radius:var(--radius-sm); font-size:15px; outline:none; background:#f8fafc; transition: all 0.2s; font-family: inherit; }
     input:focus, select:focus, textarea:focus{ background:#fff; border-color:var(--primary); box-shadow:0 0 0 4px rgba(79, 70, 229, 0.15); }
     input[readonly]{ background:#f1f5f9; color:#475569; font-weight:600; cursor: not-allowed; }
     textarea{ min-height:100px; resize:vertical; }
-
+    
     .inline{ display:flex; gap:10px; align-items:center; }
     .inline > *{ flex:1; }
-
+    
     button{ display: inline-flex; justify-content: center; align-items: center; gap: 6px; border:none; padding:14px 20px; border-radius:var(--radius-sm); font-size:15px; font-weight:700; cursor:pointer; white-space:nowrap; transition: all 0.2s; font-family: inherit; }
     button:active { transform: scale(0.97); }
     .btn-primary{ background:var(--primary); color:#fff; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
     .btn-primary:hover{ background:var(--primary-dark); box-shadow: 0 6px 15px rgba(79, 70, 229, 0.4); }
     .btn-light{ background:#f1f5f9; color:var(--text); }
     .btn-light:hover{ background:#e2e8f0; }
-
+    
     .actions{ display:flex; flex-wrap:wrap; gap:12px; margin-top:16px; }
-
+    
     .status{ margin-top:16px; padding:14px 16px; border-radius:var(--radius-sm); font-size:14px; font-weight: 600; display:none; flex-direction: row; align-items: center; gap: 10px; }
     .status.ok{ display:flex; background:var(--soft-ok); color:var(--ok); border:1px solid #bbf7d0; }
     .status.warn{ display:flex; background:var(--soft-warn); color:var(--warn); border:1px solid #fed7aa; }
     .status.err{ display:flex; background:var(--soft-danger); color:var(--danger); border:1px solid #fecaca; }
     .note{ font-size:12px; color:var(--muted); margin-top:6px; line-height: 1.4; }
-
+    
     .table-wrap{ overflow-x:auto; -webkit-overflow-scrolling: touch; border:1px solid var(--line); border-radius:16px; background:#fff; max-width: 100%; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02); }
     table{ width:100%; border-collapse:collapse; min-width:980px; font-size:14px; }
     th, td{ padding:14px 16px; border-bottom:1px solid #f1f5f9; text-align:left; vertical-align:middle; }
     th{ position:sticky; top:0; background:#f8fafc; z-index:1; font-weight: 700; color: var(--muted); text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
     tr:hover td { background: #f8fafc; }
-
+    
     .pill{ display:inline-flex; align-items: center; gap: 4px; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:700; }
     .pill-ok{ background:var(--soft-ok); color:var(--ok); }
     .pill-warn{ background:var(--soft-warn); color:var(--warn); }
     .pill-danger{ background:var(--soft-danger); color:var(--danger); }
     .hide{ display:none; }
-
+    
     .scanner-box{ border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#0f172a; position:relative; min-height:280px; margin-top:16px; box-shadow: inner 0 0 20px rgba(0,0,0,0.5); }
     .scanner-video{ width:100%; height:280px; object-fit:cover; display:block; background:#0f172a; opacity: 0.9; }
     .scanner-overlay{ position:absolute; inset:0; pointer-events:none; display:flex; justify-content:center; align-items:center; }
@@ -90,7 +91,6 @@
     .scanner-frame::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 2px solid var(--primary); border-radius: 18px; animation: scanpulse 2s infinite; }
     @keyframes scanpulse { 0% { opacity: 0.5; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.5; transform: scale(0.98); } }
 
-    /* Loading Overlay (สำหรับตอนรอเน็ต) */
     #loader { position: fixed; inset: 0; background: rgba(255,255,255,0.7); backdrop-filter: blur(4px); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; display: none; }
     #loader.active { display: flex; }
     .spinner { width: 50px; height: 50px; border: 5px solid var(--line); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
@@ -104,10 +104,11 @@
       button { width: 100%; padding: 16px; font-size: 16px; border-radius: 14px; }
       .actions { flex-direction: column; gap: 10px; margin-top: 16px; }
       .actions button { width: 100%; }
-      .tabbar { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; gap: 8px; scrollbar-width: none; background: transparent; padding: 0; margin-bottom: 24px; }
-      .tabbar::-webkit-scrollbar { display: none; }
-      .tab-btn { flex: 1 0 auto; padding: 12px 20px; font-size: 14px; border-radius: 999px; background: #f1f5f9; }
-      .tab-btn.active { background: var(--primary); }
+      
+      /* 🔴 ปรับ Tabbar บนมือถือให้บีบพอดีจอ ไม่เลื่อน */
+      .tabbar { gap: 4px; padding: 4px; margin-bottom: 24px; border-radius: 12px; }
+      .tab-btn { font-size: 11px; padding: 10px 0; border-radius: 8px; letter-spacing: -0.3px; }
+      
       .scanner-box { min-height: 240px; } .scanner-video { height: 240px; }
       .table-wrap { border-right: none; border-left: none; border-radius: 0; margin: 0 -16px; box-shadow: none; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
       th, td { padding: 14px 12px; }
@@ -125,12 +126,13 @@
         <h1 class="title">❄️ ระบบนับสต๊อกห้องเย็น</h1>
         <div class="sub">สแกนบาร์โค้ด หรือพิมพ์เอง เพื่อจัดการสต๊อกแบบเรียลไทม์ 🚀</div>
       </div>
-      <div class="badge" id="versionBadge">เวอร์ชัน 1.8.0</div>
+      <div class="badge" id="versionBadge">เวอร์ชัน 1.9.0</div>
     </div>
 
     <div class="tabbar">
-      <button class="tab-btn active" id="tabBtn-stock" onclick="switchTab('stock')">📦 นับสต๊อก</button>
-      <button class="tab-btn" id="tabBtn-balance" onclick="switchTab('balance')">📊 ยอดคงเหลือ</button>
+      <button class="tab-btn active" id="tabBtn-stock" onclick="switchTab('stock')">📦 สต๊อก</button>
+      <button class="tab-btn" id="tabBtn-balance" onclick="switchTab('balance')">📊 ยอด</button>
+      <button class="tab-btn" id="tabBtn-newproduct" onclick="switchTab('newproduct')">➕ เพิ่ม</button>
       <button class="tab-btn" id="tabBtn-report" onclick="switchTab('report')">📈 รายงาน</button>
       <button class="tab-btn" id="tabBtn-settings" onclick="switchTab('settings')">⚙️ ตั้งค่า</button>
     </div>
@@ -199,36 +201,6 @@
           <div class="row"><div class="field full"><label for="note">💬 หมายเหตุ</label><textarea id="note" placeholder="เช่น ตรวจนับรอบเช้า / พบสินค้าชำรุด"></textarea></div></div>
         </div>
 
-        <div class="section">
-          <div class="section-title">✨ ตัวช่วยแยกจากข้อความบนฉลาก</div>
-          <div class="row">
-            <div class="field"><label for="rawMfgLot">ข้อความ MFG + ล็อต</label><input type="text" id="rawMfgLot" placeholder="เช่น MFG180326A01" /></div>
-            <div class="field"><label for="rawExp">ข้อความ EXP</label><input type="text" id="rawExp" placeholder="เช่น EXP280326" /></div>
-          </div>
-          <div class="actions"><button class="btn-light" type="button" onclick="parseRawLabel()">⚡ ช่วยแยกค่าอัตโนมัติ</button></div>
-        </div>
-
-        <div class="section hide" id="newProductSection">
-          <div class="section-title">➕ เพิ่มสินค้าใหม่เข้าระบบ</div>
-          <div class="row">
-            <div class="field"><label for="newProductName">ชื่อสินค้าใหม่</label><input type="text" id="newProductName" placeholder="ชื่อสินค้า" /></div>
-            <div class="field"><label for="newSku">SKU (ไม่บังคับ)</label><input type="text" id="newSku" placeholder="ถ้าไม่มีปล่อยว่างได้" /></div>
-          </div>
-          <div class="row">
-            <div class="field">
-              <label for="newUnit">หน่วยสินค้า</label>
-              <select id="newUnit"><option value="">-- เลือกหน่วย --</option><option value="ถ้วย">ถ้วย</option><option value="ถุง">ถุง</option></select>
-            </div>
-            <div class="field"><label for="newStandardShelfLifeDays">อายุมาตรฐาน (วัน)</label><input type="number" id="newStandardShelfLifeDays" min="0" step="1" placeholder="เช่น 10" /></div>
-          </div>
-          <div class="row">
-            <div class="field"><label for="newWarningPct">% เตือนหมดอายุ</label><input type="number" id="newWarningPct" placeholder="เช่น 20" value="20" /></div>
-            <div class="field"><label for="newWarningDays">เตือนเมื่อเหลือกี่วัน</label><input type="number" id="newWarningDays" placeholder="เช่น 7 (เว้นได้)" /></div>
-          </div>
-          <div class="row"><div class="field full"><label for="newBarcodeView">บาร์โค้ด</label><input type="text" id="newBarcodeView" readonly /></div></div>
-          <div class="actions"><button class="btn-primary" type="button" onclick="saveNewProduct()">💾 บันทึกสินค้าใหม่</button></div>
-        </div>
-
         <div class="actions sticky-actions">
           <button class="btn-primary" type="button" onclick="saveCount()">✅ บันทึกอัปเดตสต๊อก</button>
           <button class="btn-light" type="button" onclick="clearEntryOnly()">🧹 ล้างรายการ</button>
@@ -252,6 +224,41 @@
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-newproduct">
+      <div class="card">
+        <h2>✨ ตัวช่วยแยกข้อความบนฉลาก</h2>
+        <div class="status" id="parserStatus"></div>
+        <div class="row">
+          <div class="field"><label for="rawMfgLot">ข้อความ MFG + ล็อต</label><input type="text" id="rawMfgLot" placeholder="เช่น MFG180326A01" /></div>
+          <div class="field"><label for="rawExp">ข้อความ EXP</label><input type="text" id="rawExp" placeholder="เช่น EXP280326" /></div>
+        </div>
+        <div class="actions"><button class="btn-light" type="button" onclick="parseRawLabel()">⚡ ช่วยแยกค่าอัตโนมัติ</button></div>
+        <div class="note" style="margin-top: 10px;">💡 ระบบจะแยกค่าแล้วสลับไปกรอกในหน้า "สต๊อก" ให้อัตโนมัติ</div>
+      </div>
+
+      <div class="card" id="newProductSection">
+        <h2>➕ เพิ่มสินค้าใหม่เข้าระบบ</h2>
+        <div class="status" id="newProductStatus"></div>
+        <div class="row">
+          <div class="field"><label for="newProductName">ชื่อสินค้าใหม่</label><input type="text" id="newProductName" placeholder="ชื่อสินค้า" /></div>
+          <div class="field"><label for="newSku">SKU (ไม่บังคับ)</label><input type="text" id="newSku" placeholder="ถ้าไม่มีปล่อยว่างได้" /></div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="newUnit">หน่วยสินค้า</label>
+            <select id="newUnit"><option value="">-- เลือกหน่วย --</option><option value="ถ้วย">ถ้วย</option><option value="ถุง">ถุง</option></select>
+          </div>
+          <div class="field"><label for="newStandardShelfLifeDays">อายุมาตรฐาน (วัน)</label><input type="number" id="newStandardShelfLifeDays" min="0" step="1" placeholder="เช่น 10" /></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="newWarningPct">% เตือนหมดอายุ (ค่าเริ่มต้น 20)</label><input type="number" id="newWarningPct" placeholder="เช่น 20" value="20" /></div>
+          <div class="field"><label for="newWarningDays">เตือนเมื่อเหลือกี่วัน (ระบุเพื่อใช้แทน %)</label><input type="number" id="newWarningDays" placeholder="เช่น 7 (เว้นได้)" /></div>
+        </div>
+        <div class="row"><div class="field full"><label for="newBarcodeView">บาร์โค้ด</label><input type="text" id="newBarcodeView" placeholder="แสกนจากหน้าสต๊อก หรือพิมพ์ที่นี่" /></div></div>
+        <div class="actions"><button class="btn-primary" type="button" onclick="saveNewProduct()">💾 บันทึกสินค้าใหม่</button></div>
       </div>
     </div>
 
@@ -330,10 +337,10 @@
   </div>
 
   <script>
-    const APP_VERSION = "1.8.0 API Mode (GitHub Pages)";
-
-    // 🔴🔴🔴 สำคัญมาก! นำ URL ของเว็บแอป (จากขั้นตอนที่ 1) มาใส่ตรงนี้ 🔴🔴🔴
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz2AONFYOHEl9lckjwHcwp8DeW8gboWDDBHcptGd82lT6iJeA7SjO63LC_TJaNILAw/exec";
+    const APP_VERSION = "1.9.0 Smart Tabs & UI";
+    
+    // ✅ URL ของบอสฝังให้เรียบร้อยแล้วครับ!
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz2AONFYOHEl9lckjwHcwp8DeW8gboWDDBHcptGd82lT6iJeA7SjO63LC_TJaNILAw/exec"; 
 
     let currentProduct = null, currentBalances = [], scannerStream = null, scannerRunning = false, scannerLoopHandle = null, barcodeDetector = null;
     function $(id){ return document.getElementById(id); }
@@ -378,7 +385,8 @@
     function setVersion(v) { $("versionBadge").textContent = "เวอร์ชัน " + (v||APP_VERSION); }
 
     function switchTab(tab) {
-      ["stock", "balance", "report", "settings"].forEach(n => {
+      // ✅ รองรับ 5 แท็บเต็มระบบแล้วครับ
+      ["stock", "balance", "newproduct", "report", "settings"].forEach(n => {
         const p = $(`tab-${n}`), b = $(`tabBtn-${n}`);
         if(p) p.classList.toggle("active", n===tab); if(b) b.classList.toggle("active", n===tab);
       });
@@ -389,14 +397,13 @@
       ["barcode","sku","masterUnit","productName","mfg","lot","exp","systemQty","newQty","note","rawMfgLot","rawExp","newBarcodeView","newProductName","newSku","newUnit","newStandardShelfLifeDays"].forEach(id => $(id).value = "");
       $("newWarningPct").value = "20"; $("newWarningDays").value = "";
       $("productHeader").innerHTML = "ยังไม่ได้เลือกสินค้า (แสกนบาร์โค้ดในหน้า <span style='color:var(--primary);'>นับสต๊อก</span> ก่อน)";
-      $("newProductSection").classList.add("hide");
-      renderBalances([]); currentProduct=null; clearStatus("mainStatus"); $("barcode").focus();
+      renderBalances([]); currentProduct=null; currentBalances=[]; clearStatus("mainStatus"); clearStatus("parserStatus"); clearStatus("newProductStatus"); $("barcode").focus();
     }
 
     function setProductUI(p) {
       currentProduct = p||null;
       $("sku").value = p ? (p.SKU||"") : ""; $("masterUnit").value = p ? (p.DefaultUnit||"") : ""; $("productName").value = p ? (p.ProductName||"") : "";
-      let wt = "-"; if(p) { const wp = p.WarningPercentage!==undefined ? (Number(p.WarningPercentage)*100).toFixed(0) : 20; const wd = p.WarningDays; wt = wd ? `เหลือน้อยกว่า ${wd} วัน` : `เหลือน้อยกว่า ${wp}% ของอายุสินค้า`; }
+      let wt = "-"; if (p) { const wp = p.WarningPercentage!==undefined ? (Number(p.WarningPercentage)*100).toFixed(0) : 20; const wd = p.WarningDays; wt = wd ? `เหลือน้อยกว่า ${wd} วัน` : `เหลือน้อยกว่า ${wp}% ของอายุสินค้า`; }
       $("productHeader").innerHTML = p ? `📦 สินค้า: ${p.ProductName||"-"} <br><span style="font-size:13px; color:var(--muted); font-weight:normal;">📌 SKU: ${p.SKU||"-"} | 🔔 เงื่อนไขเตือนหมดอายุ: ${wt}</span>` : "ยังไม่ได้เลือกสินค้า (แสกนบาร์โค้ดในหน้า นับสต๊อก ก่อน)";
     }
 
@@ -409,7 +416,8 @@
     function selectLot(i) {
       const r = currentBalances[i]; if(!r) return;
       $("mfg").value = isoToDdmmyy(r.MFG)||""; $("lot").value = r.LotNo||""; $("exp").value = isoToDdmmyy(r.EXP)||""; $("systemQty").value = r.Qty||0;
-      switchTab('stock'); $("newQty").focus(); setStatus("mainStatus", `เลือกล็อต ${r.LotNo} แล้ว! กรุณาระบุจำนวนนับสต๊อกใหม่ด้านล่าง 👇`, "ok");
+      switchTab('stock'); $("newQty").focus();
+      setStatus("mainStatus", `เลือกล็อต ${r.LotNo} แล้ว! กรุณาระบุจำนวนนับสต๊อกใหม่ด้านล่าง 👇`, "ok");
     }
 
     function renderStartupOverview(r) {
@@ -438,11 +446,17 @@
       callServer("getProductAndBalances", { barcode: bc }).then(res => {
         setVersion(res.version);
         if(!res||!res.ok) { setProductUI(null); renderBalances([]); setStatus("mainStatus", res?.message||"ค้นหาไม่สำเร็จ", "err"); return; }
+        
         if(!res.found) {
-          setProductUI(null); renderBalances([]); $("newProductSection").classList.remove("hide"); $("newBarcodeView").value = bc;
-          setStatus("mainStatus", "ไม่พบบาร์โค้ดนี้ในระบบ กรุณาสร้างสินค้าใหม่ด้านล่างได้เลยครับ 👇", "warn"); return;
+          setProductUI(null); renderBalances([]); 
+          $("newBarcodeView").value = bc; $("newProductName").value = ""; $("newSku").value = ""; $("newUnit").value = ""; $("newStandardShelfLifeDays").value = ""; $("newWarningPct").value = "20"; $("newWarningDays").value = "";
+          // 🚀 เด้งไปหน้า "เพิ่มสินค้า" อัตโนมัติ!
+          switchTab("newproduct");
+          setStatus("newProductStatus", "ไม่พบบาร์โค้ดนี้ในระบบ กรุณาสร้างสินค้าใหม่ที่นี่ได้เลยครับ 👇", "warn"); 
+          return;
         }
-        $("newProductSection").classList.add("hide"); setProductUI(res.product); renderBalances(res.balances||[]);
+        
+        setProductUI(res.product); renderBalances(res.balances||[]);
         const c = res.balances?.length||0;
         if(c>0) setStatus("mainStatus", `พบสินค้า! มียอดคงเหลือ ${c} ล็อต (กดเลือกที่แท็บ "ยอดคงเหลือ") หรือกรอกล็อตใหม่ด้านล่างได้เลยครับ`, "ok");
         else setStatus("mainStatus", "พบสินค้าในระบบ! กรุณากรอกข้อมูลล็อตใหม่เพื่ออัปเดตสต๊อกครับ", "ok");
@@ -450,22 +464,35 @@
     }
 
     function parseRawLabel() {
-      clearStatus("mainStatus");
-      callServer("parseLabelText", { rawMfgLot: $("rawMfgLot").value.trim(), rawExp: $("rawExp").value.trim() }).then(res => {
-        if(!res||!res.ok) { setStatus("mainStatus", res?.message||"แยกข้อมูลไม่สำเร็จ", "err"); return; }
-        $("mfg").value = res.parsed.rawMfg || isoToDdmmyy(res.parsed.mfg) || ""; $("lot").value = res.parsed.lot || ""; $("exp").value = res.parsed.rawExp || isoToDdmmyy(res.parsed.exp) || "";
-        setStatus("mainStatus", "ดึงข้อมูลจากฉลากสำเร็จ! 🎉", "ok");
-      }).catch(err => setStatus("mainStatus", "ผิดพลาด: "+err.message, "err"));
+      clearStatus("parserStatus");
+      const rawMfgLot = $("rawMfgLot").value.trim(); const rawExp = $("rawExp").value.trim();
+      callServer("parseLabelText", { rawMfgLot: rawMfgLot, rawExp: rawExp })
+        .then(res => {
+          if(!res||!res.ok) { setStatus("parserStatus", res?.message||"แยกข้อมูลฉลากไม่สำเร็จ", "err"); return; }
+          $("mfg").value = res.parsed.rawMfg || isoToDdmmyy(res.parsed.mfg) || ""; 
+          $("lot").value = res.parsed.lot || ""; 
+          $("exp").value = res.parsed.rawExp || isoToDdmmyy(res.parsed.exp) || "";
+          
+          $("rawMfgLot").value = ""; $("rawExp").value = ""; // ล้างค่าเมื่อทำเสร็จ
+          // 🚀 เด้งกลับไปหน้า "สต๊อก" ให้อัตโนมัติ!
+          switchTab('stock');
+          setStatus("mainStatus", "ดึงข้อมูลจากฉลากสำเร็จแล้ว! นำค่ามากรอกให้เรียบร้อย 🎉", "ok");
+        })
+        .catch(err => { setStatus("parserStatus", "ผิดพลาด: "+err.message, "err"); });
     }
 
     function saveNewProduct() {
-      clearStatus("mainStatus");
+      clearStatus("newProductStatus");
       const pl = { barcode: $("newBarcodeView").value.trim(), sku: $("newSku").value.trim(), productName: $("newProductName").value.trim(), defaultUnit: $("newUnit").value.trim(), standardShelfLifeDays: $("newStandardShelfLifeDays").value.trim(), warningPercentage: $("newWarningPct").value.trim(), warningDays: $("newWarningDays").value.trim() };
       callServer("saveNewProduct", pl).then(res => {
-        if(!res||!res.ok) { setStatus("mainStatus", res?.message||"เพิ่มสินค้าไม่สำเร็จ", "err"); return; }
-        $("newProductSection").classList.add("hide"); $("barcode").value = pl.barcode;
-        setStatus("mainStatus", "สร้างสินค้าใหม่เรียบร้อย! กำลังโหลดข้อมูล...", "ok"); lookupBarcode(); loadStartupOverview();
-      }).catch(err => setStatus("mainStatus", "ผิดพลาด: "+err.message, "err"));
+        if(!res||!res.ok) { setStatus("newProductStatus", res?.message||"เพิ่มสินค้าไม่สำเร็จ", "err"); return; }
+        
+        $("barcode").value = pl.barcode; // ดึงไปเตรียมไว้ที่หน้าแรก
+        // 🚀 เด้งกลับไปหน้า "สต๊อก" ให้อัตโนมัติ!
+        switchTab('stock');
+        setStatus("mainStatus", "สร้างสินค้าใหม่เรียบร้อย! กำลังโหลดข้อมูลให้ครับ...", "ok"); 
+        lookupBarcode(); loadStartupOverview();
+      }).catch(err => setStatus("newProductStatus", "ผิดพลาด: "+err.message, "err"));
     }
 
     function saveCount() {
